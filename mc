@@ -23,6 +23,8 @@ SERVEUR_DIR="/home/serveurs"
 # Nom des script qui lance le serveur (qui lance le .jar). Par default start.sh
 STARTSH="start.sh"
 
+REPO_DIR="/home/repo"
+
 VERSION="1.16.5"
 VERSION_WATERFALL="1.16"
 
@@ -31,9 +33,9 @@ PAPER_API_DOWNLOAD="$PAPER_API_VERSION/download"
 WATERFALL_API_VERSION="https://papermc.io/api/v1/waterfall/$VERSION_WATERFALL/latest"
 WATERFALL_API_DOWNLOAD="$WATERFALL_API_VERSION/download"
 
-spigot_jenkins="https://papermc.io/ci/job/Paper-1.16"
+# spigot_jenkins="https://papermc.io/ci/job/Paper-1.16"
 spigot_file="paperclip.jar"
-bungee_jenkins="https://papermc.io/ci/job/Waterfall"
+# bungee_jenkins="https://papermc.io/ci/job/Waterfall"
 bungee_file="Waterfall.jar"
 
 # Nom de l'utilisateur avec lequel les serveurs se lance. Par default root
@@ -290,7 +292,7 @@ elif [ "$1" = "$BACKUP" ]; then
 	then
 		echo -e "\e[92mMise à jour des PaperSpigot...\e[0m"
 		rm $spigot_file
-		wget $PAPER_API_DOWNLOAD
+		wget -O $spigot_file $PAPER_API_DOWNLOAD
 		echo $build_id > paperspigot_build_id.txt
 		for element in `ls $SERVEUR_DIR`
 		do
@@ -307,7 +309,7 @@ elif [ "$1" = "$BACKUP" ]; then
 	then
 		echo -e "\e[92mMise à jour du WaterFall...\e[0m"
 		rm $bungee_file
-		wget $WATERFALL_API_DOWNLOAD
+		wget -O $bungee_file $WATERFALL_API_DOWNLOAD
 		echo $build_id > bungee_build_id.txt
 		for element in `ls $SERVEUR_DIR`
 		do
@@ -363,11 +365,11 @@ elif [ "$1" = "$RESTART" ]; then
 				done
 				let "i = i + 1"
 				if [ "$serv_allumer2" != "" ]; then
-					if [ ! [ $i % 10 ] ] ; then
+					if (($i % 10)); then
+						echo -e "\e[91mLes serveurs\e[36m$serv_allumer2\e[91m ne sont pas encore fermée, attente $i secondes (max 60 secondes)\e[0m"
+					else
 						mc stop $serv_allumer2
 						echo -e "\e[91mTentative de fermeture de \e[36m$serv_allumer2\e[91m, attente $i secondes (max 60 secondes)\e[0m"
-					else
-						echo -e "\e[91mLes serveurs\e[36m$serv_allumer2\e[91m ne sont pas encore fermée, attente $i secondes (max 60 secondes)\e[0m"
 					fi
 				fi
 			done
@@ -433,38 +435,58 @@ elif [ "$1" = "$SEE" ]; then
 elif [ "$1" = "deploy" ]; then
 	if [ -n "$2" ]; then
 		if [ "$2" = "buildtools" ]; then
-			cd /home/repo/$2/ && sh start.sh
-			echo -e "\e[32mLe jar de dernière version de Spigot a été crée."
+			cd $REPO_DIR/$2/ && sh start.sh
+			echo -e "\e[32mLe jar de dernière version de Spigot a été crée.\e[0m"
 		elif [ "$2" = "ALL" ]; then
-			for element in `ls /home/repo`
+			for element in `ls $REPO_DIR`
 			do
-				if [ -f "/home/repo/$element/deploy.sh" ]; then
-					cd /home/repo/$element/ && sh deploy.sh
-					echo -e "\e[32mLe jar de $selement a été crée."
+				if [ -f "$REPO_DIR/$element/deploy.sh" ]; then
+					cd $REPO_DIR/$element/ && sh deploy.sh
+					echo -e "\e[32mLe jar de $selement a été crée.\e[0m"
 				fi
 			done
 		else
-			cd /home/repo/olympa$2/ && sh deploy.sh
-			echo -e "\e[32mLe jar du $2 a été crée."
-			echo -e "\e[32mIl faut maintenant copier le jar sur le serveur."
-			echo -e "cp /home/repo/olympa$2/target/Olympa*.jar $SERVEUR_DIR/<serveur>/plugins/"
+			cd $REPO_DIR/olympa$2/ && sh deploy.sh
+			echo -e "\e[32mLe jar du $2 a été crée.\e[0m"
+			echo -e "\e[32mIl faut maintenant copier le jar sur le serveur.\e[0m"
+			echo "mc deployto $2 $(cat $REPO_DIR/olympa$2/for-server)"
+			echo -e "\e[32mou\e[0m"
+			echo "mc deployto $2"
+			echo -e "\e[32mou\e[0m"
+			echo "cp $REPO_DIR/olympa$2/target/Olympa*.jar $SERVEUR_DIR/<serveur>/plugins/"
 		fi
 	else
-		for element in `ls /home/repo`
+		for element in `ls $REPO_DIR`
 		do
-			if [ -f "/home/repo/$element/deploy.sh" ]; then
+			if [ -f "$REPO_DIR/$element/deploy.sh" ]; then
 				repos+=" $element"
 			fi
 		done
-		echo -e "\e[91mLe premier argument doit être dans la liste suivante (sans le prefix Olympa)\n$repos\nou ALL\e[0m"
+		echo -e "\e[91mLe premier argument doit être dans la liste suivante\n${repos//olympa}\nou ALL\e[0m"
 	fi
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - auto deploy - - - - - - - - - - - - - - - - - - - - - - - - - -
+elif [ "$1" = "deployauto" ]; then
+	mc deploy $2
+	mc deployto $2
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - deployTo - - - - - - - - - - - - - - - - - - - - - - - - - -
 elif [ "$1" = "deployto" ]; then
-	if [ -n "$2" ] && [ -n "$3" ]; then
-		if [ "$3" = "ALL" ]; then
-			server_to_up="$(ls $SERVEUR_DIR)"
+	if [ -n "$2" ]; then
+		if [ -n "$3" ]; then
+			if [ "$3" = "ALL" ]; then
+				server_to_up="$(ls $SERVEUR_DIR)"
+			else
+				server_to_up=${@:3}
+			fi
 		else
-			server_to_up=${@:3}
+			if [ -f "$REPO_DIR/olympa$2/for-server" ]; then
+				server_to_up="$(cat $REPO_DIR/olympa$2/for-server)"
+				if [ "$server_to_up" = "ALL" ]; then
+					server_to_up="$(ls $SERVEUR_DIR)"
+				fi
+			else
+				echo -e "\e[91m$REPO_DIR/olympa$2/for-server n'existe pas, impossible de detecter sur quel(s) serveurs deploy le olympa$2.\e[0m"
+				exit 0
+			fi
 		fi
 		mc stop $server_to_up
 		for element in $server_to_up
@@ -487,11 +509,11 @@ elif [ "$1" = "deployto" ]; then
 			done
 			let "i = i + 1"
 			if [ "$serv_allumer2" != "" ]; then
-				if [ ! [ $i % 10 ] ] ; then
+				if (($i % 10)); then
+					echo -e "\e[91mLes serveurs\e[36m$serv_allumer2\e[91m ne sont pas encore fermée, attente $i secondes (max 60 secondes)\e[0m"
+				else
 					mc stop $serv_allumer2
 					echo -e "\e[91mTentative de fermeture de \e[36m$serv_allumer2\e[91m, attente $i secondes (max 60 secondes)\e[0m"
-				else
-					echo -e "\e[91mLes serveurs\e[36m$serv_allumer2\e[91m ne sont pas encore fermée, attente $i secondes (max 60 secondes)\e[0m"
 				fi
 			fi
 		done
@@ -504,18 +526,19 @@ elif [ "$1" = "deployto" ]; then
 		done
 		for element in $server_to_up
 		do
-			cp -v /home/repo/olympa$2/target/Olympa*.jar $SERVEUR_DIR/$element/plugins/
+			cp -v $REPO_DIR/olympa$2/target/Olympa*.jar $SERVEUR_DIR/$element/plugins/
 			echo -e "\e[36molympa$2\e[0;36m a été deploy sur \e[36m$element\e[0m"
 		done
 		mc start $serv_allumer
 	else
-		for element in `ls /home/repo`
+		for element in `ls $REPO_DIR`
 		do
-			if [ -f "/home/repo/$element/deploy.sh" ]; then
+			if [ -f "$REPO_DIR/$element/deploy.sh" ]; then
 				repos+=" $element"
 			fi
 		done
-		echo -e "\e[91mLe premier argument doit être dans la liste suivante (sans le prefix Olympa)\n$repos\nLes arguments suivants doivent être des noms de serveurs\e[0m"
+		
+		echo -e "\e[91mLe premier argument doit être dans la liste suivante\n${repos//olympa}\nLes arguments suivants doivent être des noms de serveurs\e[0m"
 	fi
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - TS - - - - - - - - - - - - - - - - - - - - - - - - - -
 elif [ "$1" = "ts" ]; then
