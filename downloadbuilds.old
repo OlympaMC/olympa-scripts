@@ -1,0 +1,41 @@
+#!/bin/bash
+
+SERVEUR_DIR="/home/serveurs"
+
+spigot_jenkins="https://papermc.io/ci/job/Paper-1.16"
+spigot_file="paperclip.jar"
+bungee_jenkins="https://papermc.io/ci/job/Waterfall"
+bungee_file="Waterfall.jar"
+
+echo -e "\e[92mRécupération de la dernière MAJ de Paperspigot...\e[0m"
+	old_build_id=`cat paperspigot_build_id.txt`
+	build_id=`wget -qO- $spigot_jenkins/lastStableBuild/buildNumber`
+	if [ -z $old_build_id ] || [ "$build_id" -gt $old_build_id ]
+	then
+		rm $spigot_file
+		wget $spigot_jenkins/lastStableBuild/artifact/$spigot_file
+		echo $build_id > paperspigot_build_id.txt
+		for element in `ls $SERVEUR_DIR`
+		do
+			if [[ $element != bungee* ]]; then
+				rm $SERVEUR_DIR/$element/$spigot_file
+				cp $spigot_file $SERVEUR_DIR/$element
+			fi
+		done
+	fi
+	echo -e "\e[92mRécupération de la dernière MAJ de WaterFall...\e[0m"
+	old_build_id=`cat bungee_build_id.txt`
+	build_id=`wget -qO- $bungee_jenkins/lastStableBuild/buildNumber`
+	if [ -z $old_build_id ] || [ "$build_id" -gt $old_build_id ]
+	then
+		rm $bungee_file
+		wget $bungee_jenkins/lastStableBuild/artifact/Waterfall-Proxy/bootstrap/target/$bungee_file
+		echo $build_id > bungee_build_id.txt
+		for element in `ls $SERVEUR_DIR`
+		do
+			if [[ $element == bungee* ]]; then
+				rm $SERVEUR_DIR/$element/$bungee_file
+				cp $bungee_file $SERVEUR_DIR/$element
+			fi
+		done
+	fi

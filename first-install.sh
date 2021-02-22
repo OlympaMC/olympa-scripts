@@ -1,0 +1,1 @@
+apt-get install portsentry fail2ban htop nano nmap mariadb-server default-jre jq
