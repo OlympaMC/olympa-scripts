@@ -1,5 +1,15 @@
 #!/bin/bash
-# screen -S rush1 -X stuff "say test$(printf '\r')"
+##   ____  _
+##  / __ \| |
+## | |  | | |_   _ _ __ ___  _ __   __ _
+## | |  | | | | | | '_ ` _ \| '_ \ / _` |
+## | |__| | | |_| | | | | | | |_) | (_| |
+##  \____/|_|\__, |_| |_| |_| .__/ \__,_|
+##            __/ |         | |
+##           |___/          |_|
+##
+## Script to handler Minecraft servers
+## Author > Tristiisch
 
 # PARAMETRE
 
@@ -63,8 +73,19 @@ FTP_USER=""
 FTP_PASSWORD=""
 # Dossier des backups sur le ftp
 FTP_DIR="/serveurs/"
+
+#- - - - - - - - - - - - - - - - - - - - - - - - - - UNBAN IP - - - - - - - - - - - - - - - - - - - - - - - - - -
+if [ "$1" = "unban" ]; then
+	if [ -n "$2" ]; then
+		route del $2 reject
+		fail2ban-client set sshd unbanip $2
+		fail2ban-client set mysqld-auth unbanip $2
+		sed -i '/$2/d' /etc/hosts.deny
+	else
+		echo -e "\e[35mUsage\e[0;35m mc unban <ip>\e[0m"
+	fi
 #- - - - - - - - - - - - - - - - - - - - - - - - - - IS OPEN - - - - - - - - - - - - - - - - - - - - - - - - - -
-if [ "$1" = "isopen" ]; then
+elif [ "$1" = "isopen" ]; then
 
 	if [ -n "$2" ]; then
 		if [ `ls /run/screen/S-$USER | grep -w $2 | wc -l` -eq "0" ]; then

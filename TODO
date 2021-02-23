@@ -1,0 +1,5 @@
+- sh first-install.sh (in root)
+- add private keys to ~/.ssh/authorized_keys
+# chown user:user -R /home/minecraft/.ssh
+# chmod 700 /home/user/.ssh
+# chmod 600 /home/user/.ssh/*

@@ -1,8 +1,20 @@
 #!/bin/bash
+##   ____  _
+##  / __ \| |
+## | |  | | |_   _ _ __ ___  _ __   __ _
+## | |  | | | | | | '_ ` _ \| '_ \ / _` |
+## | |__| | | |_| | | | | | | |_) | (_| |
+##  \____/|_|\__, |_| |_| |_| .__/ \__,_|
+##            __/ |         | |
+##           |___/          |_|
+##
+## Deprecated script
+## Script to download last PaperSpigot & WaterFall .jar server
+## Only work with <= 1.15, 1.16 now use JSON -> look to script mc
 
 SERVEUR_DIR="/home/serveurs"
 
-spigot_jenkins="https://papermc.io/ci/job/Paper-1.16"
+spigot_jenkins="https://papermc.io/ci/job/Paper-1.15"
 spigot_file="paperclip.jar"
 bungee_jenkins="https://papermc.io/ci/job/Waterfall"
 bungee_file="Waterfall.jar"
