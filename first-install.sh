@@ -10,10 +10,10 @@
 ## Install all requirement and add default value to OS
 ## Need to be run as root
 
-apt-get install portsentry fail2ban htop nano nmap mariadb-server default-jre jq
+apt-get install portsentry fail2ban htop nano nmap mariadb-server default-jre jq webhook
 
 echo resources/profile >> /etc/profile
+chmod 755 resources/firewall
+chmod 755 resources/mc
 ln -s resources/firewall /bin/
 ln -s resources/mc /bin/
-chmod 755 firewall
-chmod 755 mc

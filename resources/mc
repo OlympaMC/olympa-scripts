@@ -486,9 +486,8 @@ elif [ "$1" = "deploy" ]; then
 		echo -e "\e[91mLe premier argument doit être dans la liste suivante\n${repos//olympa}\nou ALL\e[0m"
 	fi
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - auto deploy - - - - - - - - - - - - - - - - - - - - - - - - - -
-elif [ "$1" = "deployauto" ]; then
-	mc deploy $2
-	mc deployto $2
+elif [ "$1" = "deployauto" ] || [ "$1" = "autodeploy" ]; then
+	mc deploy $2 && mc deployto $2
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - deployTo - - - - - - - - - - - - - - - - - - - - - - - - - -
 elif [ "$1" = "deployto" ]; then
 	if [ -n "$2" ]; then
@@ -550,7 +549,9 @@ elif [ "$1" = "deployto" ]; then
 			cp -v $REPO_DIR/olympa$2/target/Olympa*.jar $SERVEUR_DIR/$element/plugins/
 			echo -e "\e[36molympa$2\e[0;36m a été deploy sur \e[36m$element\e[0m"
 		done
-		mc start $serv_allumer
+		if [ "$serv_allumer" != "" ]; then
+			mc start $serv_allumer
+		fi
 	else
 		for element in `ls $REPO_DIR`
 		do
