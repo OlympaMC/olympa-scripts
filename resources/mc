@@ -31,7 +31,7 @@ DATE_DAY="$(date +"%j")"
 SERVEUR_DIR="/home/serveurs"
 
 # Commande en cas d'erreur ou d'arguments non d?nie
-USAGE="Usage: \e[0;36m$(basename "$0") $START|$STOP|$SEE|$BACKUP|$RESTART ALL|<${$SERVEUR_DIR}>\n\e[0;36m$(basename "$0") deploy|deployto|autodeploy ALL|${$SERVEUR_DIR}\n\e[0;36m$(basename "$0") unban <ip>\e\n\e[0;36m$(basename "$0") backupbdd|backupserv \e[0m"
+USAGE="Usage: \e[0;36m$(basename "$0") $START|$STOP|$SEE|$BACKUP|$RESTART ALL|<$(ls $SERVEUR_DIR)>\n\e[0;36m$(basename "$0") deploy|deployto|autodeploy ALL|$(ls $SERVEUR_DIR)\n\e[0;36m$(basename "$0") unban <ip>\e\n\e[0;36m$(basename "$0") backupbdd|backupserv \e[0m"
 
 # Nom des script qui lance le serveur (qui lance le .jar). Par default start.sh
 STARTSH="start.sh"
@@ -529,7 +529,7 @@ elif [ "$1" = "deployauto" ] || [ "$1" = "autodeploy" ]; then
 	if [ -n "$2" ]; then
 		mc deploy $2 && mc deployto $2 $3
 	else
-		echo -e "\e[91mLe premier argument doit être dans :\n${repos//olympa}\nou ALL et le deuxième (faculatif) peux être un serveur dans :\n${$SERVEUR_DIR}\n\e[0m"
+		echo -e "\e[91mLe premier argument doit être dans :\n${repos//olympa}\nou ALL et le deuxième (faculatif) peux être un serveur dans :\n$(ls $SERVEUR_DIR)\n\e[0m"
 	fi
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - deployTo - - - - - - - - - - - - - - - - - - - - - - - - - -
 elif [ "$1" = "deployto" ]; then
@@ -617,7 +617,7 @@ elif [ "$1" = "deployto" ]; then
 				repos+=" $element"
 			fi
 		done
-		echo -e "\e[91mLe premier argument doit être dans :\n${repos//olympa}\nou ALL et le deuxième (faculatif) peux être un serveur dans :\n${$SERVEUR_DIR}\n\e[0m"
+		echo -e "\e[91mLe premier argument doit être dans :\n${repos//olympa}\nou ALL et le deuxième (faculatif) peux être un serveur dans :\n$(ls $SERVEUR_DIR)\n\e[0m"
 	fi
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - TS - - - - - - - - - - - - - - - - - - - - - - - - - -
 elif [ "$1" = "ts" ]; then
