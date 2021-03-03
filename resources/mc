@@ -483,7 +483,7 @@ elif [ "$1" = "deploy" ]; then
 {\"text\":\"Redémarrage automatique imminent.\",\"color\":\"red\"}]^M"
 				done
 				if [ -f "$REPO_DIR/$element/deploy.sh" ]; then
-					cd $REPO_DIR/$element/ && sh deploy.sh $3 $4
+					cd $REPO_DIR/$element/ && sh deploy.sh ${@:3}
 					if [[ "$?" -ne 0 ]] ; then
 						echo -e "\e[91mLe build de $selement a échoué\e[0m"; exit $rc
 						for element2 in $forelem
@@ -509,7 +509,7 @@ elif [ "$1" = "deploy" ]; then
 				screen -S $element2 -p 0 -X stuff "tellraw @a [\"\",{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},
 {\"text\":\"Redémarrage automatique imminent.\",\"color\":\"red\"}]^M"
 			done
-			cd $REPO_DIR/olympa$2/ && sh deploy.sh $3 $4
+			cd $REPO_DIR/olympa$2/ && sh deploy.sh ${@:3}
 			if [[ "$?" -ne 0 ]] ; then
 				echo -e "\e[91mLe build de $selement a échoué\e[0m"; exit $rc
 				for element2 in $forelem
@@ -540,22 +540,14 @@ elif [ "$1" = "deploy" ]; then
 elif [ "$1" = "deployauto" ] || [ "$1" = "autodeploy" ]; then
 
 	if [ -n "$2" ]; then
-		mc deploy $2 && mc deployto $2 $3
+		mc deploy ${@:2} && mc deployto ${@:2}
 	else
 		echo -e "\e[91mLe premier argument doit être dans :\n${repos//olympa}\nou ALL et le deuxième (faculatif) peux être un serveur dans :\n$(ls $SERVEUR_DIR)\n\e[0m"
 	fi
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - deployTo - - - - - - - - - - - - - - - - - - - - - - - - - -
 elif [ "$1" = "deployto" ]; then
-	if [ -n "$4" ] && [ "$3" = "dev" ]; then
-		BRANCH="$3"
-		PLUGIN="$2"
-		SERVS=${@:4}
-	else
-		BRANCH="master"
-		PLUGIN="$2"
-		SERVS=${@:3}
-	fi
-	
+	PLUGIN="$2"
+	SERVS=${@:3}
 	if [ -n "$PLUGIN" ]; then
 		if [ "$PLUGIN" = "buildtools" ]; then
 			echo -e "\e[91mImpossible de deployTo les paperclip & bungee. C'est gérer automatiquement à chaque mc backup.\e[0m"
