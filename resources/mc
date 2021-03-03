@@ -455,16 +455,12 @@ elif [ "$1" = "link" ]; then
 elif [ "$1" = "$SEE" ]; then
 	if [ -n "$2" ]; then
 		U=$(stat -c '%U' $SERVEUR_DIR/$2)
-		i=0;
-		while [ "$i" -lt "1000" ]
+		i=1;
+		while [ "$i" -lt "100000" ]
 		do
-			if (($i % 10)); then
-				mc start $2
-			else
-				screen -x "${*:2}"
-			fi
-			echo "Tentative $i sur le serveur $2"
-			sleep 5
+			echo "Tentative $i de regarder la console sur le serveur $2"
+			screen -x "${*:2}"
+			sleep 1
 			let "i = i + 1"
 		done
 	fi
