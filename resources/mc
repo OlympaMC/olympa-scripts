@@ -31,7 +31,7 @@ DATE_DAY="$(date +"%j")"
 SERVEUR_DIR="/home/serveurs"
 
 # Commande en cas d'erreur ou d'arguments non d?nie
-USAGE="Usage: \e[0;36m$(basename "$0") $START|$STOP|$SEE|$BACKUP|$RESTART ALL|<$(ls $SERVEUR_DIR)>\n\e[0;36m$(basename "$0") deploy|deployto|autodeploy ALL|$(ls $SERVEUR_DIR)\n\e[0;36m$(basename "$0") unban <ip>\e\n\e[0;36m$(basename "$0") backupbdd|backupserv \e[0m"
+USAGE="Usage: \e[0;36m$(basename "$0") $START|$STOP|$SEE|$BACKUP|$RESTART ALL|<$(ls $SERVEUR_DIR)>\n\e[0;36m$(basename "$0") deploy|deployto|autodeploy ALL|$(ls $SERVEUR_DIR)\n\e[0;36m$(basename "$0") unban <ip>\e[0;36m$(basename "$0") backupbdd|backupserv \e[0m"
 
 # Nom des script qui lance le serveur (qui lance le .jar). Par default start.sh
 STARTSH="start.sh"
@@ -476,13 +476,17 @@ elif [ "$1" = "deploy" ]; then
 				fi
 				for element2 in $forelem
 				do
-					screen -S $element2 -p 0 -X stuff "tellraw @a [\"\",{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},{\"text\":\"Tentative de mise à jour du plugin $element ...\",\"color\":\"dark_red\"},{\"text\":\"\\\\nRedémarrage automatique imminent\",\"color\":\"red\"}]^M"
-					screen -S $element2 -p 0 -X stuff "tellraw @a [\"\",{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},{\"text\":\"\\\\nRedémarrage automatique imminent\",\"color\":\"red\"}]^M"
+					screen -S $element2 -p 0 -X stuff "tellraw @a [\"\",{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},{\"text\":\"Tentative de mise à jour du plugin $element ...\\\\n\",\"color\":\"dark_red\"}]^M"
+					screen -S $element2 -p 0 -X stuff "tellraw @a [\"\",{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},{\"text\":\"Redémarrage automatique imminent\",\"color\":\"red\"}]^M"
 				done
 				if [ -f "$REPO_DIR/$element/deploy.sh" ]; then
 					cd $REPO_DIR/$element/ && sh deploy.sh $3 $4
 					if [[ "$?" -ne 0 ]] ; then
-						echo -e "\e[91m\n\nLe build de $selement a échoué\e[0m"; exit $rc
+						echo -e "\e[91mLe build de $selement a échoué\e[0m"; exit $rc
+						for element2 in $forelem
+						do
+							screen -S $element2 -p 0 -X stuff "tellraw @a [\"\",{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},{\"text\":\"Echec du build du plugin $selement ...\\\\n\",\"color\":\"dark_red\"}]^M"
+						done
 					  else
 						echo -e "\e[32mLe jar de $selement a été crée.\e[0m"
 					fi
@@ -496,12 +500,16 @@ elif [ "$1" = "deploy" ]; then
 			fi
 			for element2 in $forelem
 			do
-				screen -S $element2 -p 0 -X stuff "tellraw @a [\"\",{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},{\"text\":\"Tentative de mise à jour du plugin Olympa$2 ...\",\"color\":\"dark_red\"},{\"text\":\"\\\\nRedémarrage automatique imminent\",\"color\":\"red\"}]^M"
-				screen -S $element2 -p 0 -X stuff "tellraw @a [\"\",{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},{\"text\":\"\\\\nRedémarrage automatique imminent\",\"color\":\"red\"}]^M"
+				screen -S $element2 -p 0 -X stuff "tellraw @a [\"\",{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},{\"text\":\"Tentative de mise à jour du plugin Olympa$2 ...\\\\n\",\"color\":\"dark_red\"}]^M"
+				screen -S $element2 -p 0 -X stuff "tellraw @a [\"\",{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},{\"text\":\"Redémarrage automatique imminent\",\"color\":\"red\"}]^M"
 			done
 			cd $REPO_DIR/olympa$2/ && sh deploy.sh $3 $4
 			if [[ "$?" -ne 0 ]] ; then
-				echo -e "\e[91m\n\nLe build de $selement a échoué\e[0m"; exit $rc
+				echo -e "\e[91mLe build de $selement a échoué\e[0m"; exit $rc
+				for element2 in $forelem
+				do
+					screen -S $element2 -p 0 -X stuff "tellraw @a [\"\",{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},{\"text\":\"Echec du build du plugin Olympa$2 ...\\\\n\",\"color\":\"dark_red\"}]^M"
+				done
 			  else
 				echo -e "\e[32mLe jar du $2 a été crée.\e[0m"
 				echo -e "\e[32mIl faut maintenant copier le jar sur le serveur.\e[0m"
@@ -531,33 +539,47 @@ elif [ "$1" = "deployauto" ] || [ "$1" = "autodeploy" ]; then
 	fi
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - deployTo - - - - - - - - - - - - - - - - - - - - - - - - - -
 elif [ "$1" = "deployto" ]; then
-	if [ -n "$2" ]; then
-		if [ "$2" = "buildtools" ]; then
-			echo -e "\e[91mImpossible de deployTo les paperclip & bungee. C'est gérer automatiquement à chaque mc backup\n\e[0m"
+	if [ -n "$4" ] && [ "$3" = "dev"]; then
+		BRANCH="$3"
+		PLUGIN="$2"
+		SERVS=${@:4}
+	else
+		BRANCH="master"
+		PLUGIN="$2"
+		SERVS=${@:3}
+	fi
+	
+	if [ -n "$PLUGIN" ]; then
+		if [ "$PLUGIN" = "buildtools" ]; then
+			echo -e "\e[91mImpossible de deployTo les paperclip & bungee. C'est gérer automatiquement à chaque mc backup\e[0m"
 			exit 1
-		elif [ "$2" = "scripts" ]; then
-			echo -e "\e[0;36mInutile de deployTo les scripts.\n\e[0m"
+		elif [ "$PLUGIN" = "scripts" ]; then
+			echo -e "\e[0;36mInutile de deployTo les scripts.\e[0m"
 			exit 0
-		elif [ -n "$3" ]; then
-			if [ "$3" = "ALL" ]; then
+		elif [ -n "$SERVS" ]; then
+			if [ "$SERVS" = "ALL" ]; then
 				server_to_up="$(ls $SERVEUR_DIR)"
 			else
-				server_to_up=${@:3}
+				server_to_up=$SERVS
 			fi
 		else
-			if [ -f "$REPO_DIR/olympa$2/for-server" ]; then
-				server_to_up="$(cat $REPO_DIR/olympa$2/for-server)"
+			if [ -f "$REPO_DIR/olympa$PLUGIN/for-server" ]; then
+				server_to_up="$(cat $REPO_DIR/olympa$PLUGIN/for-server)"
 				if [ "$server_to_up" = "ALL" ]; then
 					server_to_up="$(ls $SERVEUR_DIR)"
 				fi
 			else
-				echo -e "\e[91m$REPO_DIR/olympa$2/for-server n'existe pas, impossible de detecter sur quel(s) serveurs deploy le olympa$2.\e[0m"
+				echo -e "\e[91m$REPO_DIR/olympa$PLUGIN/for-server n'existe pas, impossible de detecter sur quel(s) serveurs deploy le olympa$PLUGIN.\e[0m"
 				exit 1
 			fi
 		fi
+		if [ ! -f "$REPO_DIR/olympa$PLUGIN/target/Olympa*.jar" ]; then
+			echo -e "\e[91mLe fichier $REPO_DIR/olympa$PLUGIN/target/Olympa*.jar n'existe pas. Maven n'a pas build un fichier au bon nom.\n  ls $REPO_DIR/olympa$PLUGIN/target\e[0m"
+			exit 1
+		fi
 		for element in $server_to_up
 		do
-			screen -S $element -p 0 -X stuff "tellraw @a {\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},{\"text\":\"Le serveur va redémarrer afin de faire une mise à jour ...\",\"color\":\"red\"}^M"
+			screen -S $element -p 0 -X stuff "tellraw @a {\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},{\"text\":\"Le serveur va redémarrer afin de faire une mise à jour du Olympa$PLUGIN...\",\"color\":\"red\"}^M"
 		done
 		sleep 10
 		mc stop $server_to_up
@@ -598,11 +620,11 @@ elif [ "$1" = "deployto" ]; then
 		done
 		for element in $server_to_up
 		do
-			cp -v $REPO_DIR/olympa$2/target/Olympa*.jar $SERVEUR_DIR/$element/plugins/
+			cp -v $REPO_DIR/olympa$PLUGIN/target/Olympa*.jar $SERVEUR_DIR/$element/plugins/
 			if [ "$?" -ne 0 ]; then
-				echo -e "\e[91m\n\nLe build du $2 a échoué !\e[0m"; exit $rc
+				echo -e "\e[91mLa copy du $PLUGIN a échoué !\e[0m"; exit $rc
 			else
-				echo -e "\e[36molympa$2\e[0;36m a été deploy sur \e[36m$element\e[0m"
+				echo -e "\e[36molympa$PLUGIN\e[0;36m a été deploy sur \e[36m$element\e[0m"
 			fi
 		done
 		if [ "$serv_allumer" != "" ]; then
@@ -615,7 +637,7 @@ elif [ "$1" = "deployto" ]; then
 				repos+=" $element"
 			fi
 		done
-		echo -e "\e[91mLe premier argument doit être dans :\n${repos//olympa}\nou ALL et le deuxième (faculatif) peux être un serveur dans :\n$(ls $SERVEUR_DIR)\n\e[0m"
+		echo -e "\e[91mLe premier argument doit être dans :\n${repos//olympa}\nou ALL et le deuxième (faculatif) peux être un serveur dans :\n$(ls $SERVEUR_DIR)\e[0m"
 	fi
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - TS - - - - - - - - - - - - - - - - - - - - - - - - - -
 elif [ "$1" = "ts" ]; then
