@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 ##   ____  _
 ##  / __ \| |
 ## | |  | | |_   _ _ __ ___  _ __   __ _
@@ -21,8 +21,6 @@ BACKUP="backup"
 RESTART="restart"
 SSH="ssh"
 
-# Commande en cas d'erreur ou d'arguments non d?nie
-USAGE="Usage: \e[0;36m$(basename "$0") $START|$STOP|$SEE all|<server>\e[0m"
 
 # Format de la date 
 DATE="$(date +"%a %d %b %Y %H:%M")"
@@ -30,6 +28,10 @@ DATE_DAY="$(date +"%j")"
 
 # Dossier des serveurs (dossier qui contient les dossiers qui contiennent les fichiers du serveur). Il est recommand?e cr?un dossier dans /home tel que /home/<nom de votre network> pour y mettre tous les autres serveurs.
 SERVEUR_DIR="/home/serveurs"
+
+# Commande en cas d'erreur ou d'arguments non d?nie
+USAGE="Usage: \e[0;36m$(basename "$0") $START|$STOP|$SEE|$BACKUP|$RESTART ALL|<$(ls $SERVEUR_DIR)>\n\e[0;36m$(basename "$0") deploy|deployto|autodeploy ALL|$(ls $SERVEUR_DIR)\n\e[0;36m$(basename "$0") unban <ip>\e\n\e[0;36m$(basename "$0") backupbdd|backupserv \e[0m"
+
 # Nom des script qui lance le serveur (qui lance le .jar). Par default start.sh
 STARTSH="start.sh"
 
@@ -309,8 +311,7 @@ elif [ "$1" = "$BACKUP" ]; then
 	echo -e "\e[92mRécupération de la dernière MAJ de Paperspigot...\e[0m"
 	old_build_id=`cat paperspigot_build_id.txt`
 	build_id=`wget -qO- $PAPER_API_VERSION | jq -r '.build'`
-	if [ -z $old_build_id ] || [ "$build_id" -gt $old_build_id ]
-	then
+	if [ -z $old_build_id ] || [ "$build_id" -gt $old_build_id ]; then
 		echo -e "\e[92mMise à jour des PaperSpigot...\e[0m"
 		rm $spigot_file
 		wget -O $spigot_file $PAPER_API_DOWNLOAD
@@ -322,12 +323,13 @@ elif [ "$1" = "$BACKUP" ]; then
 				cp $spigot_file $SERVEUR_DIR/$element
 			fi
 		done
+	else
+		echo -e "\e[91mMAJ échoué\e[0m"
 	fi
 	echo -e "\e[92mRécupération de la dernière MAJ de WaterFall...\e[0m"
 	old_build_id=`cat bungee_build_id.txt`
 	build_id=`wget -qO- $WATERFALL_API_VERSION | jq -r '.build'`
-	if [ -z $old_build_id ] || [ "$build_id" -gt $old_build_id ]
-	then
+	if [ -z $old_build_id ] || [ "$build_id" -gt $old_build_id ]; then
 		echo -e "\e[92mMise à jour du WaterFall...\e[0m"
 		rm $bungee_file
 		wget -O $bungee_file $WATERFALL_API_DOWNLOAD
@@ -339,6 +341,8 @@ elif [ "$1" = "$BACKUP" ]; then
 				cp $bungee_file $SERVEUR_DIR/$element
 			fi
 		done
+	else
+		echo -e "\e[91mMAJ échoué\e[0m"
 	fi
 	echo -e "\e[92mRéouverture de tous les serveurs...\e[0m"
 	mc start all
@@ -461,20 +465,36 @@ elif [ "$1" = "deploy" ]; then
 		elif [ "$2" = "ALL" ]; then
 			for element in `ls $REPO_DIR`
 			do
+				for element2 in `cat $REPO_DIR/$element/for-server`
+				do
+					screen -S $element2 -p 0 -X stuff "tellraw @a [\"\",{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},{\"text\":\"Tentative de mise à jour du plugin $element ...\",\"color\":\"dark_red\"},{\"text\":\"\\\\nRedémarrage automatique imminent\",\"color\":\"red\"}]^M"
+				done
 				if [ -f "$REPO_DIR/$element/deploy.sh" ]; then
-					cd $REPO_DIR/$element/ && sh deploy.sh
-					echo -e "\e[32mLe jar de $selement a été crée.\e[0m"
+					cd $REPO_DIR/$element/ && sh deploy.sh $3 $4
+					if [[ "$?" -ne 0 ]] ; then
+						echo -e "\e[91m\n\nLe build de $selement a échoué\e[0m"; exit $rc
+					  else
+						echo -e "\e[32mLe jar de $selement a été crée.\e[0m"
+					fi
 				fi
 			done
 		else
-			cd $REPO_DIR/olympa$2/ && sh deploy.sh
-			echo -e "\e[32mLe jar du $2 a été crée.\e[0m"
-			echo -e "\e[32mIl faut maintenant copier le jar sur le serveur.\e[0m"
-			echo "mc deployto $2 $(cat $REPO_DIR/olympa$2/for-server)"
-			echo -e "\e[32mou\e[0m"
-			echo "mc deployto $2"
-			echo -e "\e[32mou\e[0m"
-			echo "cp $REPO_DIR/olympa$2/target/Olympa*.jar $SERVEUR_DIR/<serveur>/plugins/"
+			for element in `cat $REPO_DIR/olympa$2/for-server`
+			do
+				screen -S $element -p 0 -X stuff "tellraw @a [\"\",{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},{\"text\":\"Tentative de mise à jour du plugin Olympa$2 ...\",\"color\":\"dark_red\"},{\"text\":\"\\\\nRedémarrage automatique imminent\",\"color\":\"red\"}]^M"
+			done
+			cd $REPO_DIR/olympa$2/ && sh deploy.sh $3 $4
+			if [[ "$?" -ne 0 ]] ; then
+				echo -e "\e[91m\n\nLe build de $selement a échoué\e[0m"; exit $rc
+			  else
+				echo -e "\e[32mLe jar du $2 a été crée.\e[0m"
+				echo -e "\e[32mIl faut maintenant copier le jar sur le serveur.\e[0m"
+				echo "mc deployto $2 $(cat $REPO_DIR/olympa$2/for-server)"
+				echo -e "\e[32mou (font la même chose)\e[0m"
+				echo "mc deployto $2"
+			fi
+			#echo -e "\e[32mou\e[0m"
+			#echo "cp $REPO_DIR/olympa$2/target/Olympa*.jar $SERVEUR_DIR/<serveur>/plugins/"
 		fi
 	else
 		for element in `ls $REPO_DIR`
@@ -487,7 +507,12 @@ elif [ "$1" = "deploy" ]; then
 	fi
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - auto deploy - - - - - - - - - - - - - - - - - - - - - - - - - -
 elif [ "$1" = "deployauto" ] || [ "$1" = "autodeploy" ]; then
-	mc deploy $2 && mc deployto $2
+
+	if [ -n "$2" ]; then
+		mc deploy $2 && mc deployto $2 $3
+	else
+		echo -e "\e[91mLe premier argument doit être dans :\n${repos//olympa}\nou ALL et le deuxième (faculatif) peux être un serveur dans :\n$(ls $SERVEUR_DIR)\n\e[0m"
+	fi
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - deployTo - - - - - - - - - - - - - - - - - - - - - - - - - -
 elif [ "$1" = "deployto" ]; then
 	if [ -n "$2" ]; then
@@ -508,6 +533,11 @@ elif [ "$1" = "deployto" ]; then
 				exit 0
 			fi
 		fi
+		for element in $server_to_up
+		do
+			screen -S $element -p 0 -X stuff "tellraw @a {\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},{\"text\":\"Le serveur va redémarrer afin de faire une mise à jour ...\",\"color\":\"red\"}^M"
+		done
+		sleep 5
 		mc stop $server_to_up
 		for element in $server_to_up
 		do
@@ -559,8 +589,7 @@ elif [ "$1" = "deployto" ]; then
 				repos+=" $element"
 			fi
 		done
-		
-		echo -e "\e[91mLe premier argument doit être dans la liste suivante\n${repos//olympa}\nLes arguments suivants doivent être des noms de serveurs\e[0m"
+		echo -e "\e[91mLe premier argument doit être dans :\n${repos//olympa}\nou ALL et le deuxième (faculatif) peux être un serveur dans :\n$(ls $SERVEUR_DIR)\n\e[0m"
 	fi
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - TS - - - - - - - - - - - - - - - - - - - - - - - - - -
 elif [ "$1" = "ts" ]; then
