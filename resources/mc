@@ -558,7 +558,13 @@ elif [ "$1" = "deployauto" ] || [ "$1" = "autodeploy" ]; then
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - deployTo - - - - - - - - - - - - - - - - - - - - - - - - - -
 elif [ "$1" = "deployto" ]; then
 	PLUGIN="$2"
-	SERVS=${@:3}
+	if [ -n "$3" ]; then
+		BRANCH="$3"
+		SERVS=${@:4}
+	else
+		BRANCH="master"
+		SERVS=${@:3}
+	fi
 	if [ -n "$PLUGIN" ]; then
 		if [ "$PLUGIN" = "buildtools" ]; then
 			echo -e "\e[91mImpossible de deployTo les paperclip & bungee. C'est gérer automatiquement à chaque mc backup.\e[0m"
@@ -590,7 +596,11 @@ elif [ "$1" = "deployto" ]; then
 			else
 				COMMAND="tellraw @a"
 			fi
-			screen -S $element -p 0 -X stuff "$COMMAND [{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},{\"text\":\"Le serveur va redémarrer afin de faire une mise à jour du Olympa$PLUGIN...\",\"color\":\"red\"}]^M"
+			if [ `mc isopen $element` -eq "0" ]; then
+				screen -S $element -p 0 -X stuff "$COMMAND [{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},{\"text\":\"Le serveur va redémarrer afin de faire une mise à jour du Olympa$PLUGIN...\",\"color\":\"red\"}]^M"
+			else
+				echo -e "\e[91mLe serveur $element est fermé\e[0m"
+			fi
 		done
 		sleep 10
 		mc stop $server_to_up
@@ -631,7 +641,7 @@ elif [ "$1" = "deployto" ]; then
 		done
 		for element in $server_to_up
 		do
-			cp -v $REPO_DIR/olympa$PLUGIN/target/Olympa*.jar $SERVEUR_DIR/$element/plugins/
+			cp $REPO_DIR/olympa$PLUGIN/target/Olympa*.jar $SERVEUR_DIR/$element/plugins/
 			if [ "$?" -ne 0 ]; then
 				echo -e "\e[91mLa copy du $PLUGIN a échoué !\e[0m"; exit $rc
 				for element2 in $server_to_up
@@ -642,7 +652,11 @@ elif [ "$1" = "deployto" ]; then
 						COMMAND="tellraw @a"
 						
 					fi
-					screen -S $element2 -p 0 -X stuff "$COMMAND [{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},{\"text\":\"La copie du jar du Olympa$PLUGIN sur le serveur $selement a échoué.\",\"color\":\"red\"}]^M"
+					if [ `mc isopen $element2` -eq "0" ]; then
+						screen -S $element2 -p 0 -X stuff "$COMMAND [{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},{\"text\":\"La copie du jar du Olympa$PLUGIN sur le serveur $selement a échoué.\",\"color\":\"red\"}]^M"
+					else
+						echo -e "\e[91mLe serveur $element2 est fermé\e[0m"
+					fi
 				done
 			else
 				echo -e "\e[36molympa$PLUGIN\e[0;36m a été deploy sur \e[36m$element\e[0m"
