@@ -22,6 +22,7 @@ RESTART="restart"
 SSH="ssh"
 
 
+
 # Format de la date 
 DATE="$(date +"%a %d %b %Y %H:%M")"
 DATE_DAY="$(date +"%j")"
@@ -30,7 +31,7 @@ DATE_DAY="$(date +"%j")"
 SERVEUR_DIR="/home/serveurs"
 
 # Commande en cas d'erreur ou d'arguments non d?nie
-USAGE="Usage: \e[0;36m$(basename "$0") $START|$STOP|$SEE|$BACKUP|$RESTART ALL|<$(ls $SERVEUR_DIR)>\n\e[0;36m$(basename "$0") deploy|deployto|autodeploy ALL|$(ls $SERVEUR_DIR)\n\e[0;36m$(basename "$0") unban <ip>\e\n\e[0;36m$(basename "$0") backupbdd|backupserv \e[0m"
+USAGE="Usage: \e[0;36m$(basename "$0") $START|$STOP|$SEE|$BACKUP|$RESTART ALL|<${$SERVEUR_DIR}>\n\e[0;36m$(basename "$0") deploy|deployto|autodeploy ALL|${$SERVEUR_DIR}\n\e[0;36m$(basename "$0") unban <ip>\e\n\e[0;36m$(basename "$0") backupbdd|backupserv \e[0m"
 
 # Nom des script qui lance le serveur (qui lance le .jar). Par default start.sh
 STARTSH="start.sh"
