@@ -463,7 +463,7 @@ elif [ "$1" = "deploy" ]; then
 			cd $REPO_DIR/$2/ && sh start.sh
 			echo -e "\e[32mLe jar de dernière version de Spigot a été crée.\e[0m"
 		elif [ "$2" = "scripts" ]; then
-			cd $REPO_DIR/$2/ && sh deploy.sh
+			cd $REPO_DIR/olympa$2/ && sh deploy.sh
 			echo -e "\e[32mMise à jours des scripts de la machine effectué.\e[0m"
 		elif [ "$2" = "ALL" ]; then
 			for element in `ls $REPO_DIR`
