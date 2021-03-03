@@ -480,7 +480,7 @@ elif [ "$1" = "deploy" ]; then
 		elif [ "$2" = "ALL" ]; then
 			for element in `ls $REPO_DIR`
 			do
-				if [ `cat $REPO_DIR/$element/for-server` = "ALL" ]; then
+				if [ "$(cat $REPO_DIR/$element/for-server)" = "ALL" ]; then
 					forelem=`ls $SERVEUR_DIR`
 				else
 					forelem=`cat $REPO_DIR/$element/for-server`
@@ -508,7 +508,7 @@ elif [ "$1" = "deploy" ]; then
 				fi
 			done
 		else
-			if [ `cat $REPO_DIR/olympa$2/for-server` = "ALL" ]; then
+			if [ "$(cat $REPO_DIR/olympa$2/for-server)" = "ALL" ]; then
 				forelem=`ls $SERVEUR_DIR`
 			else
 				forelem=`cat $REPO_DIR/olympa$2/for-server`
