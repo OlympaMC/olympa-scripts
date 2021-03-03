@@ -476,6 +476,7 @@ elif [ "$1" = "deploy" ]; then
 				fi
 				for element2 in $forelem
 				do
+					echo -e "\e[32mInfo envoyé à $element2.\e[0m"
 					screen -S $element2 -p 0 -X stuff "tellraw @a [\"\",{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},
 {\"text\":\"Tentative de mise à jour du plugin $element ...\",\"color\":\"dark_red\"}]^M"
 					screen -S $element2 -p 0 -X stuff "tellraw @a [\"\",{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},
