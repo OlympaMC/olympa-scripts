@@ -479,7 +479,7 @@ elif [ "$1" = "deploy" ]; then
 					screen -S $element2 -p 0 -X stuff "tellraw @a [\"\",{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},
 					{\"text\":\"Tentative de mise à jour du plugin $element ...\",\"color\":\"dark_red\"}]^M"
 					screen -S $element2 -p 0 -X stuff "tellraw @a [\"\",{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},
-					{\"text\":\"Redémarrage automatique imminent\",\"color\":\"red\"}]^M"
+					{\"text\":\"Redémarrage automatique imminent.\",\"color\":\"red\"}]^M"
 				done
 				if [ -f "$REPO_DIR/$element/deploy.sh" ]; then
 					cd $REPO_DIR/$element/ && sh deploy.sh $3 $4
@@ -506,7 +506,7 @@ elif [ "$1" = "deploy" ]; then
 				screen -S $element2 -p 0 -X stuff "tellraw @a [\"\",{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},
 				{\"text\":\"Tentative de mise à jour du plugin Olympa$2 ...\",\"color\":\"dark_red\"}]^M"
 				screen -S $element2 -p 0 -X stuff "tellraw @a [\"\",{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},
-				{\"text\":\"Redémarrage automatique imminent\",\"color\":\"red\"}]^M"
+				{\"text\":\"Redémarrage automatique imminent.\",\"color\":\"red\"}]^M"
 			done
 			cd $REPO_DIR/olympa$2/ && sh deploy.sh $3 $4
 			if [[ "$?" -ne 0 ]] ; then
@@ -557,7 +557,7 @@ elif [ "$1" = "deployto" ]; then
 	
 	if [ -n "$PLUGIN" ]; then
 		if [ "$PLUGIN" = "buildtools" ]; then
-			echo -e "\e[91mImpossible de deployTo les paperclip & bungee. C'est gérer automatiquement à chaque mc backup\e[0m"
+			echo -e "\e[91mImpossible de deployTo les paperclip & bungee. C'est gérer automatiquement à chaque mc backup.\e[0m"
 			exit 1
 		elif [ "$PLUGIN" = "scripts" ]; then
 			echo -e "\e[0;36mInutile de deployTo les scripts.\e[0m"
@@ -579,13 +579,10 @@ elif [ "$1" = "deployto" ]; then
 				exit 1
 			fi
 		fi
-		if [ ! -f "$REPO_DIR/olympa$PLUGIN/target/Olympa*.jar" ]; then
-			echo -e "\e[91mLe fichier $REPO_DIR/olympa$PLUGIN/target/Olympa*.jar n'existe pas. Maven n'a pas build un fichier au bon nom.\n  ls $REPO_DIR/olympa$PLUGIN/target\e[0m"
-			exit 1
-		fi
 		for element in $server_to_up
 		do
-			screen -S $element -p 0 -X stuff "tellraw @a {\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},{\"text\":\"Le serveur va redémarrer afin de faire une mise à jour du Olympa$PLUGIN...\",\"color\":\"red\"}^M"
+			screen -S $element -p 0 -X stuff "tellraw @a {\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},
+			{\"text\":\"Le serveur va redémarrer afin de faire une mise à jour du Olympa$PLUGIN...\",\"color\":\"red\"}^M"
 		done
 		sleep 10
 		mc stop $server_to_up
@@ -610,10 +607,10 @@ elif [ "$1" = "deployto" ]; then
 			let "i = i + 1"
 			if [ "$serv_allumer2" != "" ]; then
 				if (($i % 10)); then
-					echo -e "\e[91mLes serveurs\e[36m$serv_allumer2\e[91m ne sont pas encore fermée, attente $i secondes (max 60 secondes)\e[0m"
+					echo -e "\e[91mLes serveurs\e[36m$serv_allumer2\e[91m ne sont pas encore fermée, attente $i secondes (max 60 secondes).\e[0m"
 				else
 					mc stop $serv_allumer2
-					echo -e "\e[91mTentative de fermeture de \e[36m$serv_allumer2\e[91m, attente $i secondes (max 60 secondes)\e[0m"
+					echo -e "\e[91mTentative de fermeture de \e[36m$serv_allumer2\e[91m, attente $i secondes (max 60 secondes).\e[0m"
 				fi
 			fi
 		done
@@ -629,6 +626,11 @@ elif [ "$1" = "deployto" ]; then
 			cp -v $REPO_DIR/olympa$PLUGIN/target/Olympa*.jar $SERVEUR_DIR/$element/plugins/
 			if [ "$?" -ne 0 ]; then
 				echo -e "\e[91mLa copy du $PLUGIN a échoué !\e[0m"; exit $rc
+				for element2 in $server_to_up
+				do
+					screen -S $element2 -p 0 -X stuff "tellraw @a {\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},
+					{\"text\":\"La copie du jar du Olympa$PLUGIN sur le serveur $selement a échoué.\",\"color\":\"red\"}^M"
+				done
 			else
 				echo -e "\e[36molympa$PLUGIN\e[0;36m a été deploy sur \e[36m$element\e[0m"
 			fi
