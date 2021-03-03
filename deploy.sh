@@ -1,1 +1,1 @@
-git pull && chmod 755 -R resources
+git reset --hard HEAD && git pull && chmod 755 -R resources
