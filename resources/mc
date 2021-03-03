@@ -455,7 +455,17 @@ elif [ "$1" = "link" ]; then
 elif [ "$1" = "$SEE" ]; then
 	if [ -n "$2" ]; then
 		U=$(stat -c '%U' $SERVEUR_DIR/$2)
-		screen -x "${*:2}"
+		i=0;
+		while [ "$i" -lt "1000" ]
+		do
+			if (($i % 10)); then
+				mc start $2
+			else
+				screen -x "${*:2}"
+			fi
+			sleep 5
+			let "i = i + 1"
+		done
 	fi
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - deploy - - - - - - - - - - - - - - - - - - - - - - - - - -
 elif [ "$1" = "deploy" ]; then
