@@ -545,7 +545,7 @@ elif [ "$1" = "deployauto" ] || [ "$1" = "autodeploy" ]; then
 	fi
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - deployTo - - - - - - - - - - - - - - - - - - - - - - - - - -
 elif [ "$1" = "deployto" ]; then
-	if [ -n "$4" ] && [ "$3" = "dev"]; then
+	if [ -n "$4" ] && [ "$3" = "dev" ]; then
 		BRANCH="$3"
 		PLUGIN="$2"
 		SERVS=${@:4}
