@@ -489,10 +489,10 @@ elif [ "$1" = "deploy" ]; then
 				fi
 			done
 		else
-			if [ `cat $REPO_DIR/$element/for-server` = "ALL" ]; then
+			if [ `cat $REPO_DIR/olympa$2/for-server` = "ALL" ]; then
 				forelem=`ls $SERVEUR_DIR`
 			else
-				forelem=`cat $REPO_DIR/$element/for-server`
+				forelem=`cat $REPO_DIR/olympa$2/for-server`
 			fi
 			for element2 in $forelem
 			do
