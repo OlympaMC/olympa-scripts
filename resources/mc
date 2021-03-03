@@ -490,19 +490,17 @@ elif [ "$1" = "deploy" ]; then
 				fi
 			done
 		else
-		if [ `cat $REPO_DIR/olympa$2/for-server` = "ALL" ]; then
-			for element in `ls $SERVEUR_DIR`
-			do
-				screen -S $element -p 0 -X stuff "tellraw @a [\"\",{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},{\"text\":\"Tentative de mise à jour du plugin Olympa$2 ...\",\"color\":\"dark_red\"},{\"text\":\"\\\\nRedémarrage automatique imminent\",\"color\":\"red\"}]^M"
-			done
-		else
-			for element in `cat $REPO_DIR/olympa$2/for-server`
-			do
-				screen -S $element -p 0 -X stuff "tellraw @a [\"\",{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},{\"text\":\"Tentative de mise à jour du plugin Olympa$2 ...\",\"color\":\"dark_red\"},{\"text\":\"\\\\nRedémarrage automatique imminent\",\"color\":\"red\"}]^M"
-			done
-		fi
-			
-
+			if [ `cat $REPO_DIR/olympa$2/for-server` = "ALL" ]; then
+				for element in `ls $SERVEUR_DIR`
+				do
+					screen -S $element -p 0 -X stuff "tellraw @a [\"\",{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},{\"text\":\"Tentative de mise à jour du plugin Olympa$2 ...\",\"color\":\"dark_red\"},{\"text\":\"\\\\nRedémarrage automatique imminent\",\"color\":\"red\"}]^M"
+				done
+			else
+				for element in `cat $REPO_DIR/olympa$2/for-server`
+				do
+					screen -S $element -p 0 -X stuff "tellraw @a [\"\",{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},{\"text\":\"Tentative de mise à jour du plugin Olympa$2 ...\",\"color\":\"dark_red\"},{\"text\":\"\\\\nRedémarrage automatique imminent\",\"color\":\"red\"}]^M"
+				done
+			fi
 			cd $REPO_DIR/olympa$2/ && sh deploy.sh $3 $4
 			if [[ "$?" -ne 0 ]] ; then
 				echo -e "\e[91m\n\nLe build de $selement a échoué\e[0m"; exit $rc
@@ -536,7 +534,13 @@ elif [ "$1" = "deployauto" ] || [ "$1" = "autodeploy" ]; then
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - deployTo - - - - - - - - - - - - - - - - - - - - - - - - - -
 elif [ "$1" = "deployto" ]; then
 	if [ -n "$2" ]; then
-		if [ -n "$3" ]; then
+		if [ "$2" = "buildtools" ]; then
+			echo -e "\e[91mImpossible de deployTo les paperclip & bungee. C'est gérer automatiquement à chaque mc backup\n\e[0m"
+			exit 1
+		elif [ "$2" = "scripts" ]; then
+			echo -e "\e[91mInutile de deployTo les scripts.\n\e[0m"
+			exit 1
+		elif [ -n "$3" ]; then
 			if [ "$3" = "ALL" ]; then
 				server_to_up="$(ls $SERVEUR_DIR)"
 			else
