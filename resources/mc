@@ -554,7 +554,7 @@ elif [ "$1" = "deployto" ]; then
 				fi
 			else
 				echo -e "\e[91m$REPO_DIR/olympa$2/for-server n'existe pas, impossible de detecter sur quel(s) serveurs deploy le olympa$2.\e[0m"
-				exit 0
+				exit 1
 			fi
 		fi
 		for element in $server_to_up
@@ -601,7 +601,11 @@ elif [ "$1" = "deployto" ]; then
 		for element in $server_to_up
 		do
 			cp -v $REPO_DIR/olympa$2/target/Olympa*.jar $SERVEUR_DIR/$element/plugins/
-			echo -e "\e[36molympa$2\e[0;36m a été deploy sur \e[36m$element\e[0m"
+			if [ "$?" -ne 0 ]; then
+				echo -e "\e[91m\n\nLe build du $2 a échoué !\e[0m"; exit $rc
+			else
+				echo -e "\e[36molympa$2\e[0;36m a été deploy sur \e[36m$element\e[0m"
+			fi
 		done
 		if [ "$serv_allumer" != "" ]; then
 			mc start $serv_allumer
