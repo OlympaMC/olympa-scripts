@@ -536,8 +536,8 @@ elif [ "$1" = "deployto" ]; then
 			echo -e "\e[91mImpossible de deployTo les paperclip & bungee. C'est gérer automatiquement à chaque mc backup\n\e[0m"
 			exit 1
 		elif [ "$2" = "scripts" ]; then
-			echo -e "\e[91mInutile de deployTo les scripts.\n\e[0m"
-			exit 1
+			echo -e "\e[0;36mInutile de deployTo les scripts.\n\e[0m"
+			exit 0
 		elif [ -n "$3" ]; then
 			if [ "$3" = "ALL" ]; then
 				server_to_up="$(ls $SERVEUR_DIR)"
