@@ -463,6 +463,7 @@ elif [ "$1" = "$SEE" ]; then
 			else
 				screen -x "${*:2}"
 			fi
+			echo "Tentative $i sur le serveur $2"
 			sleep 5
 			let "i = i + 1"
 		done
