@@ -483,14 +483,20 @@ elif [ "$1" = "deploy" ]; then
 				fi
 				for element2 in $forelem
 				do
-					if [[ $element2 == bungee* ]]; then
-						COMMAND="alertraw"
+					if [ `mc isopen $element2` -eq "0" ]; then
+						if [[ $element2 == bungee* ]]; then
+							COMMAND="alertraw"
+						else
+							COMMAND="tellraw @a"
+						fi
+						if [[ ${@:4} == $element2* ]]; then
+							screen -S $element2 -p 0 -X stuff "$COMMAND [\"\",{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},{\"text\":\"Tentative de mise à jour du plugin $element $3 sur ${@:4} ...\",\"color\":\"dark_red\"}]^M"
+							screen -S $element2 -p 0 -X stuff "$COMMAND [\"\",{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},{\"text\":\"Redémarrage automatique de ${@:4} imminent.\",\"color\":\"red\"}]^M"
+							echo -e "\e[32mInfo envoyé à $element2.\e[0m"
+						fi
 					else
-						COMMAND="tellraw @a"
+						echo -e "\e[91mLe serveur $element est fermé\e[0m"
 					fi
-					echo -e "\e[32mInfo envoyé à $element2.\e[0m"
-					screen -S $element2 -p 0 -X stuff "$COMMAND [\"\",{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},{\"text\":\"Tentative de mise à jour du plugin $element ...\",\"color\":\"dark_red\"}]^M"
-					screen -S $element2 -p 0 -X stuff "$COMMAND [\"\",{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},{\"text\":\"Redémarrage automatique imminent.\",\"color\":\"red\"}]^M"
 				done
 				if [ -f "$REPO_DIR/$element/deploy.sh" ]; then
 					cd $REPO_DIR/$element/ && sh deploy.sh ${@:3}
@@ -513,13 +519,19 @@ elif [ "$1" = "deploy" ]; then
 			fi
 			for element2 in $forelem
 			do
-				if [[ $element2 == bungee* ]]; then
-					COMMAND="alertraw"
+				if [ `mc isopen $element2` -eq "0" ]; then
+					if [[ $element2 == bungee* ]]; then
+						COMMAND="alertraw"
+					else
+						COMMAND="tellraw @a"
+					fi
+					if [[ ${@:4} == $element2* ]]; then
+						screen -S $element2 -p 0 -X stuff "$COMMAND [\"\",{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},{\"text\":\"Tentative de mise à jour du plugin Olympa$2 $3 sur ${@:4} ...\",\"color\":\"dark_red\"}]^M"
+						screen -S $element2 -p 0 -X stuff "$COMMAND [\"\",{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},{\"text\":\"Redémarrage automatique de ${@:4} imminent.\",\"color\":\"red\"}]^M"
+					fi
 				else
-					COMMAND="tellraw @a"
+					echo -e "\e[91mLe serveur $element est fermé\e[0m"
 				fi
-				screen -S $element2 -p 0 -X stuff "$COMMAND [\"\",{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},{\"text\":\"Tentative de mise à jour du plugin Olympa$2 ...\",\"color\":\"dark_red\"}]^M"
-				screen -S $element2 -p 0 -X stuff "$COMMAND [\"\",{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},{\"text\":\"Redémarrage automatique imminent.\",\"color\":\"red\"}]^M"
 			done
 			cd $REPO_DIR/olympa$2/ && sh deploy.sh ${@:3}
 			if [[ "$?" -ne 0 ]] ; then
