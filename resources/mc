@@ -530,7 +530,7 @@ elif [ "$1" = "deployauto" ] || [ "$1" = "autodeploy" ]; then
 	if [ -n "$2" ]; then
 		mc deploy $2 && mc deployto $2 $3
 	else
-		echo -e "\e[91mLe premier argument doit être dans :\n${repos//olympa}\nou ALL et le deuxième (faculatif) peux être un serveur dans :\n$(ls $SERVEUR_DIR)\n\e[0m"
+		echo -e "\e[91mLe premier argument doit être dans :\n${repos//olympa}\nou ALL et le deuxième (faculatif) peux être un serveur dans :\n${$SERVEUR_DIR}\n\e[0m"
 	fi
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - deployTo - - - - - - - - - - - - - - - - - - - - - - - - - -
 elif [ "$1" = "deployto" ]; then
@@ -608,7 +608,7 @@ elif [ "$1" = "deployto" ]; then
 				repos+=" $element"
 			fi
 		done
-		echo -e "\e[91mLe premier argument doit être dans :\n${repos//olympa}\nou ALL et le deuxième (faculatif) peux être un serveur dans :\n$(ls $SERVEUR_DIR)\n\e[0m"
+		echo -e "\e[91mLe premier argument doit être dans :\n${repos//olympa}\nou ALL et le deuxième (faculatif) peux être un serveur dans :\n${$SERVEUR_DIR}\n\e[0m"
 	fi
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - TS - - - - - - - - - - - - - - - - - - - - - - - - - -
 elif [ "$1" = "ts" ]; then
