@@ -476,8 +476,10 @@ elif [ "$1" = "deploy" ]; then
 				fi
 				for element2 in $forelem
 				do
-					screen -S $element2 -p 0 -X stuff "tellraw @a [\"\",{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},{\"text\":\"Tentative de mise à jour du plugin $element ...\\\\n\",\"color\":\"dark_red\"}]^M"
-					screen -S $element2 -p 0 -X stuff "tellraw @a [\"\",{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},{\"text\":\"Redémarrage automatique imminent\",\"color\":\"red\"}]^M"
+					screen -S $element2 -p 0 -X stuff "tellraw @a [\"\",{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},
+					{\"text\":\"Tentative de mise à jour du plugin $element ...\",\"color\":\"dark_red\"}]^M"
+					screen -S $element2 -p 0 -X stuff "tellraw @a [\"\",{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},
+					{\"text\":\"Redémarrage automatique imminent\",\"color\":\"red\"}]^M"
 				done
 				if [ -f "$REPO_DIR/$element/deploy.sh" ]; then
 					cd $REPO_DIR/$element/ && sh deploy.sh $3 $4
@@ -485,7 +487,8 @@ elif [ "$1" = "deploy" ]; then
 						echo -e "\e[91mLe build de $selement a échoué\e[0m"; exit $rc
 						for element2 in $forelem
 						do
-							screen -S $element2 -p 0 -X stuff "tellraw @a [\"\",{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},{\"text\":\"Echec du build du plugin $selement ...\\\\n\",\"color\":\"dark_red\"}]^M"
+							screen -S $element2 -p 0 -X stuff "tellraw @a [\"\",{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},
+							{\"text\":\"Echec du build du plugin $selement ...\\\\n\",\"color\":\"dark_red\"}]^M"
 						done
 					  else
 						echo -e "\e[32mLe jar de $selement a été crée.\e[0m"
@@ -500,15 +503,18 @@ elif [ "$1" = "deploy" ]; then
 			fi
 			for element2 in $forelem
 			do
-				screen -S $element2 -p 0 -X stuff "tellraw @a [\"\",{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},{\"text\":\"Tentative de mise à jour du plugin Olympa$2 ...\\\\n\",\"color\":\"dark_red\"}]^M"
-				screen -S $element2 -p 0 -X stuff "tellraw @a [\"\",{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},{\"text\":\"Redémarrage automatique imminent\",\"color\":\"red\"}]^M"
+				screen -S $element2 -p 0 -X stuff "tellraw @a [\"\",{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},
+				{\"text\":\"Tentative de mise à jour du plugin Olympa$2 ...\",\"color\":\"dark_red\"}]^M"
+				screen -S $element2 -p 0 -X stuff "tellraw @a [\"\",{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},
+				{\"text\":\"Redémarrage automatique imminent\",\"color\":\"red\"}]^M"
 			done
 			cd $REPO_DIR/olympa$2/ && sh deploy.sh $3 $4
 			if [[ "$?" -ne 0 ]] ; then
 				echo -e "\e[91mLe build de $selement a échoué\e[0m"; exit $rc
 				for element2 in $forelem
 				do
-					screen -S $element2 -p 0 -X stuff "tellraw @a [\"\",{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},{\"text\":\"Echec du build du plugin Olympa$2 ...\\\\n\",\"color\":\"dark_red\"}]^M"
+					screen -S $element2 -p 0 -X stuff "tellraw @a [\"\",{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},
+					{\"text\":\"Echec du build du plugin Olympa$2 ...\\\\n\",\"color\":\"dark_red\"}]^M"
 				done
 			  else
 				echo -e "\e[32mLe jar du $2 a été crée.\e[0m"
