@@ -41,7 +41,7 @@ REPO_DIR="/home/repo"
 VERSION="1.16.5"
 VERSION_WATERFALL="1.16"
 
-PAPER_API_VERSION="https://papermc.io/api/v1/paper/$VERSION/latest"
+PAPER_API_VERSION="https://purpur.pl3x.net/api/v1/purpur/$VERSION/latest"
 PAPER_API_DOWNLOAD="$PAPER_API_VERSION/download"
 WATERFALL_API_VERSION="https://papermc.io/api/v1/waterfall/$VERSION_WATERFALL/latest"
 WATERFALL_API_DOWNLOAD="$WATERFALL_API_VERSION/download"
