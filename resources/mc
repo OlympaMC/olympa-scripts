@@ -611,7 +611,7 @@ elif [ "$1" = "deployto" ]; then
 			if [ `mc isopen $element` -eq "0" ]; then
 				screen -S $element -p 0 -X stuff "$COMMAND [{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},{\"text\":\"Le serveur va redémarrer afin de faire une mise à jour du Olympa$PLUGIN...\",\"color\":\"red\"}]^M"
 			else
-				echo -e "\e[91mLe serveur $element est fermé\e[0m"
+				echo -e "\e[91mLe serveur $element est fermée.\e[0m"
 			fi
 		done
 		sleep 10
@@ -667,7 +667,7 @@ elif [ "$1" = "deployto" ]; then
 					if [ `mc isopen $element2` -eq "0" ]; then
 						screen -S $element2 -p 0 -X stuff "$COMMAND [{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},{\"text\":\"La copie du jar du Olympa$PLUGIN sur le serveur $selement a échoué.\",\"color\":\"red\"}]^M"
 					else
-						echo -e "\e[91mLe serveur $element2 est fermé\e[0m"
+						echo -e "\e[91mLe serveur $element2 est fermée.\e[0m"
 					fi
 				done
 			else
