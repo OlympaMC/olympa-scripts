@@ -495,7 +495,7 @@ elif [ "$1" = "deploy" ]; then
 							echo -e "\e[32mInfo envoyé à $element2.\e[0m"
 						fi
 					else
-						echo -e "\e[91mLe serveur $element est fermé\e[0m"
+						echo -e "\e[91mLe serveur $element2 est fermé\e[0m"
 					fi
 				done
 				if [ -f "$REPO_DIR/$element/deploy.sh" ]; then
@@ -530,7 +530,7 @@ elif [ "$1" = "deploy" ]; then
 						screen -S $element2 -p 0 -X stuff "$COMMAND [\"\",{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},{\"text\":\"Redémarrage automatique de ${@:4} imminent.\",\"color\":\"red\"}]^M"
 					fi
 				else
-					echo -e "\e[91mLe serveur $element est fermé\e[0m"
+					echo -e "\e[91mLe serveur $element2 est fermé\e[0m"
 				fi
 			done
 			cd $REPO_DIR/olympa$2/ && sh deploy.sh ${@:3}
