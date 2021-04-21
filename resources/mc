@@ -695,7 +695,7 @@ elif [ "$1" = "deployto" ]; then
 			fi
 		done
 		if [ "$serv_allumer" != "" ]; then
-			mc $start $serv_allumer
+			mc $START $serv_allumer
 		fi
 	else
 		for element in `ls $REPO_DIR`
