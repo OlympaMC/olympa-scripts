@@ -515,7 +515,7 @@ elif [ "$1" = "deploy" ]; then
 				if [ -f "$REPO_DIR/$element/deploy.sh" ]; then
 					cd $REPO_DIR/$element/ && sh deploy.sh $BRANCH $SERVS
 					if [[ "$?" -ne 0 ]] ; then
-						echo -e "\e[91mLe build de $selement a échoué\e[0m"; exit $rc
+						echo -e "\e[91mLe build de $selement a échoué ! Erreur $rc\e[0m"; exit $rc
 						for element2 in $SERVS
 						do
 							screen -S $element2 -p 0 -X stuff "tellraw @a [\"\",{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},{\"text\":\"Echec du build du plugin $selement ...\",\"color\":\"dark_red\"}]^M"
@@ -542,7 +542,7 @@ elif [ "$1" = "deploy" ]; then
 		done
 		cd $REPO_DIR/olympa$PLUGIN/ && sh deploy.sh ${@:3}
 		if [[ "$?" -ne 0 ]] ; then
-			echo -e "\e[91mLe build de $selement a échoué\e[0m"; exit $rc
+			echo -e "\e[91mLe build de $selement a échoué ! Erreur $rc\e[0m"; exit $rc
 			for element2 in $SERVS
 			do
 				screen -S $element2 -p 0 -X stuff "tellraw @a [\"\",{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},{\"text\":\"Echec du build du plugin Olympa$PLUGIN ...\",\"color\":\"dark_red\"}]^M"
@@ -583,7 +583,7 @@ elif [ "$1" = "deployto" ]; then
 	fi
 	if [[ `cd $SERVEUR_DIR` == *"$BRANCH"* ]]; then
 		echo -e "\e[91m$BRANCH doit être une branch valide tel que master ou dev.\e[0m"
-		exit 0;
+		exit 1;
 	fi
 	if [ -n "$PLUGIN" ]; then
 		if [ "$PLUGIN" = "buildtools" ]; then
@@ -591,7 +591,7 @@ elif [ "$1" = "deployto" ]; then
 			exit 0
 		elif [ "$PLUGIN" = "scripts" ]; then
 			echo -e "\e[0;36mInutile de deployTo les scripts.\e[0m"
-			exit 1
+			exit 0
 		elif [ -n "$SERVS" ]; then
 			if [ "$SERVS" = "ALL" ]; then
 				SERVS="$(ls $SERVEUR_DIR)"
@@ -604,7 +604,7 @@ elif [ "$1" = "deployto" ]; then
 				fi
 			else
 				echo -e "\e[91m$REPO_DIR/olympa$PLUGIN/for-server n'existe pas, impossible de detecter sur quel(s) serveurs deploy le olympa$PLUGIN.\e[0m"
-				exit 0
+				exit 1
 			fi
 		fi
 		for element in $SERVS
@@ -665,7 +665,7 @@ elif [ "$1" = "deployto" ]; then
 		do
 			cp $REPO_DIR/olympa$PLUGIN/target/Olympa*.jar $SERVEUR_DIR/$element/plugins/
 			if [ "$?" -ne 0 ]; then
-				echo -e "\e[91mLa copy du $PLUGIN a échoué !\e[0m"; exit $rc
+				echo -e "\e[91mLa copy du $PLUGIN a échoué ! Erreur $rc\e[0m"; exit $rc
 				for element2 in $serv_allumer
 				do
 					if [[ $element2 == bungee* ]]; then
