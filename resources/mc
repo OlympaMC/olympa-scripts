@@ -107,15 +107,15 @@ elif [ "$1" = "isopen" ]; then
 elif [ "$1" = "$START" ]; then
 	if [ -n "$2" ]; then
 		if [ "$2" = "all" ]; then
-			serv="$ALL"
+			SERV="$ALL"
 		else
-			serv="${*:2}"
+			SERV="${*:2}"
 		fi
 		echo
-		for element in $serv
+		for element in $SERV
 		do
 		if [ -d "$SERVEUR_DIR/$element" ];then
-			U=$(stat -c '%U' $SERVEUR_DIR/$element)
+			USER=$(stat -c '%U' $SERVEUR_DIR/$element)
 			# if [ -f "$SERVEUR_DIR/$element/$STARTSH" ];then
 				if [ `ls /run/screen/S-$USER | grep -w $element | wc -l` -eq "0" ]; then
 					serv_lance+=" $element"
@@ -160,13 +160,13 @@ elif [ "$1" = "$START" ]; then
 elif [ "$1" = "$STOP" ]; then
 	if [ -n "$2" ]; then
 		if [ "$2" = "all" ]; then
-			serv="$ALL"
+			SERV="$ALL"
 		else
-			serv="${*:2}"
+			SERV="${*:2}"
 		fi
-		for element in $serv
+		for element in $SERV
 		do
-			U=$(stat -c '%U' $SERVEUR_DIR/$element)
+			USER=$(stat -c '%U' $SERVEUR_DIR/$element)
 			if [ `ls /run/screen/S-$USER | grep -w $element | wc -l` -eq "1" ]; then
 				if [[ $element == bungee* ]]; then
 					serv_vafermerb+=" $element"
@@ -280,7 +280,7 @@ elif [ "$1" = "$BACKUP" ]; then
 		done
 		echo -e "\e[93mTous les joueurs ont été kick.\e[0m"
 		sleep 5
-		mc stop $serv_allumer
+		mc $STOP $serv_allumer
 		
 		serv_allumer2="open"
 		i=0
@@ -348,17 +348,17 @@ elif [ "$1" = "$BACKUP" ]; then
 		echo -e "\e[91mMAJ bungee échoué\e[0m"
 	fi
 	echo -e "\e[92mRéouverture de tous les serveurs...\e[0m"
-	mc start all
+	mc $start all
 	echo -e "\e[32mTous est parfait, les serveurs se lancent !\e[0m"
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - RESTART - - - - - - - - - - - - - - - - - - - - - - - - - -
 elif [ "$1" = "$RESTART" ]; then
 	if [ -n "$2" ]; then
 		if [ "$2" = "all" ]; then
-			serv="$ALL"
+			SERV="$ALL"
 		else
-			serv="${*:2}"
+			SERV="${*:2}"
 		fi
-		for element in $serv
+		for element in $SERV
 		do
 			if [ `ls /run/screen/S-$USER | grep -w $element | wc -l` -eq "1" ]; then
 				serv_vafermer+=" $element"
@@ -371,7 +371,7 @@ elif [ "$1" = "$RESTART" ]; then
 			echo -e "\e[31m$serv_fermer\e[0;31m n'est pas ouvert\e[0m"
 		fi
 		if [ -n "$serv_vafermer" ]; then
-			mc stop $serv_vafermer
+			mc $STOP $serv_vafermer
 			# ----
 			for element in $serv_vafermer
 			do
@@ -383,7 +383,7 @@ elif [ "$1" = "$RESTART" ]; then
 			i=0
 			while [ "$serv_allumer2" != "" ] && [ "$i" -lt "60" ]
 			do
-				sleep 1
+				sleep 5
 				serv_allumer2=""
 				for element in $serv_allumer
 				do
@@ -393,10 +393,10 @@ elif [ "$1" = "$RESTART" ]; then
 				done
 				let "i = i + 1"
 				if [ "$serv_allumer2" != "" ]; then
-					if (($i % 10)); then
+					if (($i % 20)); then
 						echo -e "\e[91mLes serveurs\e[36m$serv_allumer2\e[91m ne sont pas encore fermé, attente $i secondes (max 60 secondes)\e[0m"
 					else
-						mc stop $serv_allumer2
+						mc $STOP $serv_allumer2
 						echo -e "\e[91mTentative de fermeture de \e[36m$serv_allumer2\e[91m, attente $i secondes (max 60 secondes)\e[0m"
 					fi
 				fi
@@ -408,7 +408,7 @@ elif [ "$1" = "$RESTART" ]; then
 					echo -e "\e[91m$element a été fermer de force.\e[0m"
 				fi
 			done
-			mc start $serv_vafermer
+			mc $start $serv_vafermer
 			echo -e "\e[36m$serv_vafermer\e[0;36m s'est redémarrer \e[0m"
 		fi
 	else
@@ -507,7 +507,7 @@ elif [ "$1" = "deploy" ]; then
 						#fi
 						#screen -S $element2 -p 0 -X stuff "$COMMAND [\"\",{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},{\"text\":\"Tentative de mise à jour du plugin $element $BRANCH sur ${@:4} ...\",\"color\":\"dark_red\"}]^M"
 						#screen -S $element2 -p 0 -X stuff "$COMMAND [\"\",{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},{\"text\":\"Redémarrage automatique de ${@:4} imminent.\",\"color\":\"red\"}]^M"
-						echo -e "\e[32Le serveur $element2 est ouvert, il va devoir redémarrer après le build.\e[0m"
+						echo -e "\e[32mLe serveur $element2 est ouvert, il va devoir redémarrer après le build.\e[0m"
 					else
 						echo -e "\e[91mLe serveur $element2 est fermé.\e[0m"
 					fi
@@ -515,11 +515,11 @@ elif [ "$1" = "deploy" ]; then
 				if [ -f "$REPO_DIR/$element/deploy.sh" ]; then
 					cd $REPO_DIR/$element/ && sh deploy.sh $BRANCH $SERVS
 					if [[ "$?" -ne 0 ]] ; then
-						echo -e "\e[91mLe build de $selement a échoué ! Erreur $rc\e[0m"; exit $rc
 						for element2 in $SERVS
 						do
 							screen -S $element2 -p 0 -X stuff "tellraw @a [\"\",{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},{\"text\":\"Echec du build du plugin $selement ...\",\"color\":\"dark_red\"}]^M"
 						done
+						echo -e "\e[91mLe build de $selement a échoué ! Erreur $rc\e[0m"; exit $rc
 					else
 						echo -e "\e[32mLe jar de $selement a été crée.\e[0m"
 					fi
@@ -535,18 +535,19 @@ elif [ "$1" = "deploy" ]; then
 		for element2 in $SERVS
 		do
 			if [ `mc isopen $element2` -eq "0" ]; then
-				echo -e "\e[32Le serveur $element2 est ouvert, il va devoir redémarrer\e[0m"
+				echo -e "\e[32mLe serveur $element2 est ouvert, il va devoir redémarrer\e[0m"
 			else
 				echo -e "\e[91mLe serveur $element2 est fermé\e[0m"
 			fi
 		done
+		chmod 755 $REPO_DIR/olympa$PLUGIN/deploy.sh
 		cd $REPO_DIR/olympa$PLUGIN/ && sh deploy.sh ${@:3}
 		if [[ "$?" -ne 0 ]] ; then
-			echo -e "\e[91mLe build de $selement a échoué ! Erreur $rc\e[0m"; exit $rc
 			for element2 in $SERVS
 			do
 				screen -S $element2 -p 0 -X stuff "tellraw @a [\"\",{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},{\"text\":\"Echec du build du plugin Olympa$PLUGIN ...\",\"color\":\"dark_red\"}]^M"
 			done
+			echo -e "\e[91mLe build de $selement a échoué ! Erreur $rc\e[0m"; exit $rc
 		else
 			echo -e "\e[32mLe jar du $PLUGIN a été crée.\e[0m"
 			echo -e "\e[32mIl faut maintenant copier le jar sur le serveur.\e[0m"
@@ -570,7 +571,7 @@ elif [ "$1" = "deployauto" ] || [ "$1" = "autodeploy" ]; then
 		mc deploy ${@:2} && mc deployto ${@:2}
 	else
 		echo -e "\e[91mLe 1er argument doit être dans :\n${repos//olympa}\nou ALL\nLe 2ème une branch :\ndev\master\nou autre branch qui existe\net les autres (faculatif) doivent être un un serveur dans :\n$(ls $SERVEUR_DIR)\n\e[0m"
-	fi
+
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - deployTo - - - - - - - - - - - - - - - - - - - - - - - - - -
 elif [ "$1" = "deployto" ]; then
 	PLUGIN="$2"
@@ -625,7 +626,7 @@ elif [ "$1" = "deployto" ]; then
 		if [ -n "$will_w8" ]; then
 			sleep $DEPLOYTO_SECOND_BEFORE_SHUTDOWN
 		fi
-		mc stop $SERVS
+		mc $STOP $SERVS
 		for element in $SERVS
 		do
 			if [ `ls /run/screen/S-$USER | grep -w $element | wc -l` -eq "1" ]; then
@@ -636,7 +637,7 @@ elif [ "$1" = "deployto" ]; then
 		i=0
 		while [ "$serv_allumer2" != "" ] && [ "$i" -lt "60" ]
 		do
-			sleep 1
+			sleep 5
 			serv_allumer2=""
 			for element in $serv_allumer
 			do
@@ -646,10 +647,10 @@ elif [ "$1" = "deployto" ]; then
 			done
 			let "i = i + 1"
 			if [ "$serv_allumer2" != "" ]; then
-				if (($i % 10)); then
+				if (($i % 20)); then
 					echo -e "\e[91mLes serveurs\e[36m$serv_allumer2\e[91m ne sont pas encore fermé, attente $i secondes (max 60 secondes).\e[0m"
 				else
-					mc stop $serv_allumer2
+					mc $STOP $serv_allumer2
 					echo -e "\e[91mTentative de fermeture de \e[36m$serv_allumer2\e[91m, attente $i secondes (max 60 secondes).\e[0m"
 				fi
 			fi
@@ -665,7 +666,6 @@ elif [ "$1" = "deployto" ]; then
 		do
 			cp $REPO_DIR/olympa$PLUGIN/target/Olympa*.jar $SERVEUR_DIR/$element/plugins/
 			if [ "$?" -ne 0 ]; then
-				echo -e "\e[91mLa copy du $PLUGIN a échoué ! Erreur $rc\e[0m"; exit $rc
 				for element2 in $serv_allumer
 				do
 					if [[ $element2 == bungee* ]]; then
@@ -680,12 +680,13 @@ elif [ "$1" = "deployto" ]; then
 						echo -e "\e[91mLe serveur $element2 est fermé, impossible de les informés de l'échec.\e[0m"
 					fi
 				done
+				echo -e "\e[91mLa copy du $PLUGIN a échoué ! Erreur $rc\e[0m"; exit $rc
 			else
 				echo -e "\e[36molympa$PLUGIN\e[0;36m a été deploy sur \e[36m$element\e[0m"
 			fi
 		done
 		if [ "$serv_allumer" != "" ]; then
-			mc start $serv_allumer
+			mc $start $serv_allumer
 		fi
 	else
 		for element in `ls $REPO_DIR`
@@ -695,6 +696,39 @@ elif [ "$1" = "deployto" ]; then
 			fi
 		done
 		echo -e "\e[91mLe premier argument doit être dans :\n${repos//olympa}\nou ALL et le deuxième (faculatif) peux être un serveur dans :\n$(ls $SERVEUR_DIR)\e[0m"
+	fi
+	fi
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - deployServ - - - - - - - - - - - - - - - - - - - - - - - - - -
+elif [ "$1" = "deployserv" ]; then
+	if [ -n "$2" ]; then
+		if [ "$2" = "all" ]; then
+			SERV="$ALL"
+		else
+			SERV="${*:2}"
+		fi
+		echo
+		for element in $SERV
+		do
+		if [ -d "$SERVEUR_DIR/$element" ];then
+			SERV_TO_UP+=" $element"
+		else
+			serv_dossier+=" $element"
+		fi
+		done
+		if [ -n "$serv_dossier" ]; then
+			echo -e "\e[31m$serv_dossier\e[0;31m n'existe pas (dossier $SERVEUR_DIR/nom du serveur)\e[0m"
+		fi
+		if [ -n "$SERV_TO_UP" ]; then
+			for element in $SERV_TO_UP
+			do
+				U=$(stat -c '%U' $SERVEUR_DIR/$element)
+				sh -c "cd $SERVEUR_DIR/$element; sh $STARTSH"
+			done
+			echo -e "\e[32m$SERV_TO_UP\e[0;32m a démarré\e[0m"
+		fi
+	else
+		read -p 'Quel(s) serveur(s) ? ' server_select
+		$0 $START $server_select
 	fi
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - TS - - - - - - - - - - - - - - - - - - - - - - - - - -
 elif [ "$1" = "ts" ]; then

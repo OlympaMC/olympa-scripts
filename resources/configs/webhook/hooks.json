@@ -1,0 +1,32 @@
+[
+  {
+    "id": "deploy",
+    "execute-command": "/bin/mc",
+    "command-working-directory": "/home",
+    "pass-arguments-to-command":
+    [
+      {
+        "source": "string",
+        "name": "autodeploy"
+      },
+      {
+        "source": "url",
+        "name": "projet"
+      }
+    ],
+    "response-message": "Executing redeploy script",
+    "trigger-rule":
+    {
+      "match":
+      {
+        "type": "value",
+        "value": "95c4dd69672ad754cc26bee57b4f43ca",
+        "parameter":
+        {
+          "source": "header",
+          "name": "X-Gitlab-Token"
+        }
+      }
+    }
+  }
+]
