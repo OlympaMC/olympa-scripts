@@ -5,8 +5,8 @@
 ## | |  | | | | | | '_ ` _ \| '_ \ / _` |
 ## | |__| | | |_| | | | | | | |_) | (_| |
 ##  \____/|_|\__, |_| |_| |_| .__/ \__,_|
-##            __/ |         | |
-##           |___/          |_|
+##			__/ |		 | |
+##		   |___/		  |_|
 ##
 ## Script to handler Minecraft servers
 ## Author > Tristiisch
@@ -31,7 +31,7 @@ DATE_DAY="$(date +"%j")"
 SERVEUR_DIR="/home/serveurs"
 
 # Commande en cas d'erreur ou d'arguments non d?nie
-USAGE="Usage: \e[0;36m$(basename "$0") $START|$STOP|$SEE|$BACKUP|$RESTART ALL|<$(ls $SERVEUR_DIR)>\n\e[0;36m$(basename "$0") deploy|deployto|autodeploy ALL|$(ls $SERVEUR_DIR)\n\e[0;36m$(basename "$0") unban <ip>\e[0;36m$(basename "$0") backupbdd|backupserv \e[0m"
+USAGE="Usage: \e[0;36m$(basename "$0") $START|$STOP|$SEE|$BACKUP|$RESTART ALL|<$(ls $SERVEUR_DIR)>\n\e[0;36m$(basename "$0") deploy|deployto|autodeploy dev|master ALL|$(ls $SERVEUR_DIR)\n\e[0;36m$(basename "$0") unban <ip>\e[0;36m$(basename "$0") backupbdd|backupserv \e[0m"
 
 # Nom des script qui lance le serveur (qui lance le .jar). Par default start.sh
 STARTSH="start.sh"
@@ -76,6 +76,8 @@ FTP_USER=""
 FTP_PASSWORD=""
 # Dossier des backups sur le ftp
 FTP_DIR="/serveurs/"
+
+DEPLOYTO_SECOND_BEFORE_SHUTDOWN="10"
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - UNBAN IP - - - - - - - - - - - - - - - - - - - - - - - - - -
 if [ "$1" = "unban" ]; then
@@ -467,89 +469,91 @@ elif [ "$1" = "$SEE" ]; then
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - deploy - - - - - - - - - - - - - - - - - - - - - - - - - -
 elif [ "$1" = "deploy" ]; then
 	if [ -n "$2" ]; then
-		if [ "$2" = "buildtools" ]; then
-			cd $REPO_DIR/$2/ && sh start.sh
+		PLUGIN="$2"
+	fi
+	if [ -n "$3" ]; then
+		BRANCH="$3"
+		SERVS=${@:4}
+	else
+		BRANCH="master"
+		SERVS=${@:3}
+	fi
+	if [[ `cd $SERVEUR_DIR` == *"$BRANCH"* ]]; then
+		echo -e "\e[91m$BRANCH doit être une branch valide tel que master ou dev.\e[0m"
+		exit 0;
+	fi
+	if [ -n "$PLUGIN" ]; then
+		if [ "$PLUGIN" = "buildtools" ]; then
+			cd $REPO_DIR/$PLUGIN/ && sh start.sh
 			echo -e "\e[32mLe jar de dernière version de Spigot a été crée.\e[0m"
-		elif [ "$2" = "scripts" ]; then
-			cd $REPO_DIR/olympa$2/ && sh deploy.sh
+		elif [ "$PLUGIN" = "scripts" ]; then
+			cd $REPO_DIR/olympa$PLUGIN/ && sh deploy.sh
 			echo -e "\e[32mMise à jours des scripts de la machine effectué.\e[0m"
-		elif [ "$2" = "ALL" ]; then
+		elif [ "$PLUGIN" = "ALL" ]; then
 			for element in `ls $REPO_DIR`
 			do
 				if [ "$(cat $REPO_DIR/$element/for-server)" = "ALL" ]; then
-					forelem=`ls $SERVEUR_DIR`
+					SERVS=`ls $SERVEUR_DIR`
 				else
-					forelem=`cat $REPO_DIR/$element/for-server`
+					SERVS=`cat $REPO_DIR/$element/for-server`
 				fi
-				for element2 in $forelem
+				for element2 in $SERVS
 				do
 					if [ `mc isopen $element2` -eq "0" ]; then
-						if [[ $element2 == bungee* ]]; then
-							COMMAND="alertraw"
-						else
-							COMMAND="tellraw @a"
-						fi
-						if [[ ${@:4} == $element2* ]]; then
-							screen -S $element2 -p 0 -X stuff "$COMMAND [\"\",{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},{\"text\":\"Tentative de mise à jour du plugin $element $3 sur ${@:4} ...\",\"color\":\"dark_red\"}]^M"
-							screen -S $element2 -p 0 -X stuff "$COMMAND [\"\",{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},{\"text\":\"Redémarrage automatique de ${@:4} imminent.\",\"color\":\"red\"}]^M"
-							echo -e "\e[32mInfo envoyé à $element2.\e[0m"
-						fi
+						#if [[ $element2 == bungee* ]]; then
+						#	COMMAND="alertraw"
+						#else
+						#	COMMAND="tellraw @a"
+						#fi
+						#screen -S $element2 -p 0 -X stuff "$COMMAND [\"\",{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},{\"text\":\"Tentative de mise à jour du plugin $element $BRANCH sur ${@:4} ...\",\"color\":\"dark_red\"}]^M"
+						#screen -S $element2 -p 0 -X stuff "$COMMAND [\"\",{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},{\"text\":\"Redémarrage automatique de ${@:4} imminent.\",\"color\":\"red\"}]^M"
+						echo -e "\e[32Le serveur $element2 est ouvert, il va devoir redémarrer après le build.\e[0m"
 					else
-						echo -e "\e[91mLe serveur $element2 est fermé\e[0m"
+						echo -e "\e[91mLe serveur $element2 est fermé.\e[0m"
 					fi
 				done
 				if [ -f "$REPO_DIR/$element/deploy.sh" ]; then
-					cd $REPO_DIR/$element/ && sh deploy.sh ${@:3}
+					cd $REPO_DIR/$element/ && sh deploy.sh $BRANCH $SERVS
 					if [[ "$?" -ne 0 ]] ; then
 						echo -e "\e[91mLe build de $selement a échoué\e[0m"; exit $rc
-						for element2 in $forelem
+						for element2 in $SERVS
 						do
 							screen -S $element2 -p 0 -X stuff "tellraw @a [\"\",{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},{\"text\":\"Echec du build du plugin $selement ...\",\"color\":\"dark_red\"}]^M"
 						done
-					  else
+					else
 						echo -e "\e[32mLe jar de $selement a été crée.\e[0m"
 					fi
 				fi
 			done
+		elif [ -n "$4" ]; then
+			SERVS=`${@:4}`
+		elif [ "$(cat $REPO_DIR/olympa$PLUGIN/for-server)" = "ALL" ]; then
+			SERVS=`ls $SERVEUR_DIR`
 		else
-			if [ "$(cat $REPO_DIR/olympa$2/for-server)" = "ALL" ]; then
-				forelem=`ls $SERVEUR_DIR`
-			else
-				forelem=`cat $REPO_DIR/olympa$2/for-server`
-			fi
-			for element2 in $forelem
-			do
-				if [ `mc isopen $element2` -eq "0" ]; then
-					if [[ $element2 == bungee* ]]; then
-						COMMAND="alertraw"
-					else
-						COMMAND="tellraw @a"
-					fi
-					if [[ ${@:4} == $element2* ]]; then
-						screen -S $element2 -p 0 -X stuff "$COMMAND [\"\",{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},{\"text\":\"Tentative de mise à jour du plugin Olympa$2 $3 sur ${@:4} ...\",\"color\":\"dark_red\"}]^M"
-						screen -S $element2 -p 0 -X stuff "$COMMAND [\"\",{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},{\"text\":\"Redémarrage automatique de ${@:4} imminent.\",\"color\":\"red\"}]^M"
-					fi
-				else
-					echo -e "\e[91mLe serveur $element2 est fermé\e[0m"
-				fi
-			done
-			cd $REPO_DIR/olympa$2/ && sh deploy.sh ${@:3}
-			if [[ "$?" -ne 0 ]] ; then
-				echo -e "\e[91mLe build de $selement a échoué\e[0m"; exit $rc
-				for element2 in $forelem
-				do
-					screen -S $element2 -p 0 -X stuff "tellraw @a [\"\",{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},{\"text\":\"Echec du build du plugin Olympa$2 ...\",\"color\":\"dark_red\"}]^M"
-				done
-			  else
-				echo -e "\e[32mLe jar du $2 a été crée.\e[0m"
-				echo -e "\e[32mIl faut maintenant copier le jar sur le serveur.\e[0m"
-				echo "mc deployto $2 $(cat $REPO_DIR/olympa$2/for-server)"
-				echo -e "\e[32mou (font la même chose)\e[0m"
-				echo "mc deployto $2"
-			fi
-			#echo -e "\e[32mou\e[0m"
-			#echo "cp $REPO_DIR/olympa$2/target/Olympa*.jar $SERVEUR_DIR/<serveur>/plugins/"
+			SERVS=`cat $REPO_DIR/olympa$PLUGIN/for-server`
 		fi
+		for element2 in $SERVS
+		do
+			if [ `mc isopen $element2` -eq "0" ]; then
+				echo -e "\e[32Le serveur $element2 est ouvert, il va devoir redémarrer\e[0m"
+			else
+				echo -e "\e[91mLe serveur $element2 est fermé\e[0m"
+			fi
+		done
+		cd $REPO_DIR/olympa$PLUGIN/ && sh deploy.sh ${@:3}
+		if [[ "$?" -ne 0 ]] ; then
+			echo -e "\e[91mLe build de $selement a échoué\e[0m"; exit $rc
+			for element2 in $SERVS
+			do
+				screen -S $element2 -p 0 -X stuff "tellraw @a [\"\",{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},{\"text\":\"Echec du build du plugin Olympa$PLUGIN ...\",\"color\":\"dark_red\"}]^M"
+			done
+		else
+			echo -e "\e[32mLe jar du $PLUGIN a été crée.\e[0m"
+			echo -e "\e[32mIl faut maintenant copier le jar sur le serveur.\e[0m"
+			echo "mc deployto $PLUGIN $BRANCH $SERVS"
+		fi
+		#echo -e "\e[32mou\e[0m"
+		#echo "cp $REPO_DIR/olympa$PLUGIN/target/Olympa*.jar $SERVEUR_DIR/<serveur>/plugins/"
 	else
 		for element in `ls $REPO_DIR`
 		do
@@ -565,7 +569,7 @@ elif [ "$1" = "deployauto" ] || [ "$1" = "autodeploy" ]; then
 	if [ -n "$2" ]; then
 		mc deploy ${@:2} && mc deployto ${@:2}
 	else
-		echo -e "\e[91mLe premier argument doit être dans :\n${repos//olympa}\nou ALL et le deuxième (faculatif) peux être un serveur dans :\n$(ls $SERVEUR_DIR)\n\e[0m"
+		echo -e "\e[91mLe 1er argument doit être dans :\n${repos//olympa}\nou ALL\nLe 2ème une branch :\ndev\master\nou autre branch qui existe\net les autres (faculatif) doivent être un un serveur dans :\n$(ls $SERVEUR_DIR)\n\e[0m"
 	fi
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - deployTo - - - - - - - - - - - - - - - - - - - - - - - - - -
 elif [ "$1" = "deployto" ]; then
@@ -577,31 +581,33 @@ elif [ "$1" = "deployto" ]; then
 		BRANCH="master"
 		SERVS=${@:3}
 	fi
+	if [[ `cd $SERVEUR_DIR` == *"$BRANCH"* ]]; then
+		echo -e "\e[91m$BRANCH doit être une branch valide tel que master ou dev.\e[0m"
+		exit 0;
+	fi
 	if [ -n "$PLUGIN" ]; then
 		if [ "$PLUGIN" = "buildtools" ]; then
 			echo -e "\e[91mImpossible de deployTo les paperclip & bungee. C'est gérer automatiquement à chaque mc backup.\e[0m"
-			exit 1
+			exit 0
 		elif [ "$PLUGIN" = "scripts" ]; then
 			echo -e "\e[0;36mInutile de deployTo les scripts.\e[0m"
-			exit 0
+			exit 1
 		elif [ -n "$SERVS" ]; then
 			if [ "$SERVS" = "ALL" ]; then
-				server_to_up="$(ls $SERVEUR_DIR)"
-			else
-				server_to_up=$SERVS
+				SERVS="$(ls $SERVEUR_DIR)"
 			fi
 		else
 			if [ -f "$REPO_DIR/olympa$PLUGIN/for-server" ]; then
-				server_to_up="$(cat $REPO_DIR/olympa$PLUGIN/for-server)"
-				if [ "$server_to_up" = "ALL" ]; then
-					server_to_up="$(ls $SERVEUR_DIR)"
+				SERVS="$(cat $REPO_DIR/olympa$PLUGIN/for-server)"
+				if [ "$SERVS" = "ALL" ]; then
+					SERVS="$(ls $SERVEUR_DIR)"
 				fi
 			else
 				echo -e "\e[91m$REPO_DIR/olympa$PLUGIN/for-server n'existe pas, impossible de detecter sur quel(s) serveurs deploy le olympa$PLUGIN.\e[0m"
-				exit 1
+				exit 0
 			fi
 		fi
-		for element in $server_to_up
+		for element in $SERVS
 		do
 			if [[ $element == bungee* ]]; then
 				COMMAND="alertraw"
@@ -609,14 +615,18 @@ elif [ "$1" = "deployto" ]; then
 				COMMAND="tellraw @a"
 			fi
 			if [ `mc isopen $element` -eq "0" ]; then
-				screen -S $element -p 0 -X stuff "$COMMAND [{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},{\"text\":\"Le serveur va redémarrer afin de faire une mise à jour du Olympa$PLUGIN...\",\"color\":\"red\"}]^M"
+				will_w8="true"
+				screen -S $element -p 0 -X stuff "$COMMAND [{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},{\"text\":\"Le serveur va redémarrer dans $DEPLOYTO_SECOND_BEFORE_SHUTDOWN secondes afin de faire une mise à jour du Olympa$PLUGIN...\",\"color\":\"red\"}]^M"
+				echo -e "\e[32mLe serveur $element est ouvert, les joueurs ont été informés du redémarrage dans $DEPLOYTO_SECOND_BEFORE_SHUTDOWN secondes.\e[0m"
 			else
 				echo -e "\e[91mLe serveur $element est fermé.\e[0m"
 			fi
 		done
-		sleep 10
-		mc stop $server_to_up
-		for element in $server_to_up
+		if [ -n "$will_w8" ]; then
+			sleep $DEPLOYTO_SECOND_BEFORE_SHUTDOWN
+		fi
+		mc stop $SERVS
+		for element in $SERVS
 		do
 			if [ `ls /run/screen/S-$USER | grep -w $element | wc -l` -eq "1" ]; then
 				serv_allumer+=" $element"
@@ -644,30 +654,30 @@ elif [ "$1" = "deployto" ]; then
 				fi
 			fi
 		done
-		for element in $server_to_up
+		for element in $SERVS
 		do
 			if [ `ls /run/screen/S-$USER | grep -w $element | wc -l` -eq "1" ]; then
 				screen -X -S $element kill
 				echo -e "\e[91m$element a été fermer de force.\e[0m"
 			fi
 		done
-		for element in $server_to_up
+		for element in $SERVS
 		do
 			cp $REPO_DIR/olympa$PLUGIN/target/Olympa*.jar $SERVEUR_DIR/$element/plugins/
 			if [ "$?" -ne 0 ]; then
 				echo -e "\e[91mLa copy du $PLUGIN a échoué !\e[0m"; exit $rc
-				for element2 in $server_to_up
+				for element2 in $serv_allumer
 				do
 					if [[ $element2 == bungee* ]]; then
 						COMMAND="alertraw"
 					else
 						COMMAND="tellraw @a"
-						
 					fi
 					if [ `mc isopen $element2` -eq "0" ]; then
 						screen -S $element2 -p 0 -X stuff "$COMMAND [{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},{\"text\":\"La copie du jar du Olympa$PLUGIN sur le serveur $selement a échoué.\",\"color\":\"red\"}]^M"
+						echo -e "\e[91mLe serveur $element2 est ouvert, les joueurs ont été informés de l'échec.\e[0m"
 					else
-						echo -e "\e[91mLe serveur $element2 est fermé.\e[0m"
+						echo -e "\e[91mLe serveur $element2 est fermé, impossible de les informés de l'échec.\e[0m"
 					fi
 				done
 			else
