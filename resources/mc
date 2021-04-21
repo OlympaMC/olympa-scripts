@@ -31,7 +31,7 @@ DATE_DAY="$(date +"%j")"
 SERVEUR_DIR="/home/serveurs"
 
 # Commande en cas d'erreur ou d'arguments non d?nie
-USAGE="Usage: \e[0;36m$(basename "$0") $START|$STOP|$SEE|$BACKUP|$RESTART ALL|<$(ls $SERVEUR_DIR)>\n\e[0;36m$(basename "$0") deploy|deployto|autodeploy dev|master ALL|$(ls $SERVEUR_DIR)\n\e[0;36m$(basename "$0") unban <ip>\e[0;36m$(basename "$0") backupbdd|backupserv \e[0m"
+USAGE="Usage: \e[0;36m$(basename "$0") $START|$STOP|$SEE|$BACKUP|$RESTART ALL|<$(ls $SERVEUR_DIR)>\n\e[0;36m$(basename "$0") deploy|deployto|autodeploy dev|master ALL|$(ls $SERVEUR_DIR)\n\e[0;36m$(basename "$0") unban <ip>\e[0;36m\n$(basename "$0") backupbdd|backupserv \e[0m"
 
 # Nom des script qui lance le serveur (qui lance le .jar). Par default start.sh
 STARTSH="start.sh"
@@ -746,5 +746,5 @@ elif [ "$1" = "redis" ]; then
 	redis-cli -a 1rWS1Fmj7s4snEDCQgw3Mcznf8ShfrLZpPkKtstu5coV9PpDI1
 #- - - - - - - - - - - - - - - - - - - - - - - - - - USAGE - - - - - - - - - - - - - - - - - - - - - - - - - -
 else
-	echo -e "$USAGE"
+	echo -e "\e[31m'${*:0}' Unknow\nUSAGE"
 fi
