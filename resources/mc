@@ -82,7 +82,7 @@ DEPLOYTO_SECOND_BEFORE_SHUTDOWN="10"
 #- - - - - - - - - - - - - - - - - - - - - - - - - - UNBAN IP - - - - - - - - - - - - - - - - - - - - - - - - - -
 if [ "$1" = "unban" ]; then
 	if [ -n "$2" ]; then
-		route del $2 reject
+		route del "$2" reject
 		fail2ban-client set sshd unbanip $2
 		fail2ban-client set mysqld-auth unbanip $2
 		sed -i '/$2/d' /etc/hosts.deny
@@ -203,7 +203,6 @@ elif [ "$1" = "$STOP" ]; then
 		read -p 'Quel(s) serveur(s) ? ' server_select
 		$0 $STOP $server_select
 	fi
-	echo
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - BACKUP - - - - - - - - - - - - - - - - - - - - - - - - - -
 elif [ "$1" = "backupserv" ]; then
 	echo -e "\e[32mCréation de la backup des serveurs...\e[0m"
@@ -571,7 +570,7 @@ elif [ "$1" = "deployauto" ] || [ "$1" = "autodeploy" ]; then
 		mc deploy ${@:2} && mc deployto ${@:2}
 	else
 		echo -e "\e[91mLe 1er argument doit être dans :\n${repos//olympa}\nou ALL\nLe 2ème une branch :\ndev\master\nou autre branch qui existe\net les autres (faculatif) doivent être un un serveur dans :\n$(ls $SERVEUR_DIR)\n\e[0m"
-
+	fi
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - deployTo - - - - - - - - - - - - - - - - - - - - - - - - - -
 elif [ "$1" = "deployto" ]; then
 	PLUGIN="$2"
@@ -696,7 +695,6 @@ elif [ "$1" = "deployto" ]; then
 			fi
 		done
 		echo -e "\e[91mLe premier argument doit être dans :\n${repos//olympa}\nou ALL et le deuxième (faculatif) peux être un serveur dans :\n$(ls $SERVEUR_DIR)\e[0m"
-	fi
 	fi
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - deployServ - - - - - - - - - - - - - - - - - - - - - - - - - -
 elif [ "$1" = "deployserv" ]; then
