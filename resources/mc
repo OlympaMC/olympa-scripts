@@ -526,7 +526,7 @@ elif [ "$1" = "deploy" ]; then
 				fi
 			done
 		elif [ -n "$4" ]; then
-			SERVS=`${@:4}`
+			SERVS="${@:4}"
 		elif [ "$(cat $REPO_DIR/olympa$PLUGIN/for-server)" = "ALL" ]; then
 			SERVS=`ls $SERVEUR_DIR`
 		else
