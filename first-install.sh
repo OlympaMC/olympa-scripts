@@ -15,8 +15,9 @@ apt install curl htop nano nmap jq unzip
 # Logiciels
 apt install portsentry fail2ban mariadb-server default-jre default-jdk webhook screen
 
-echo resources/profile >> /etc/profile
+#echo resources/profile >> /etc/profile
 chmod 755 resources/firewall
 chmod 755 resources/mc
 ln -s resources/firewall /bin/
 ln -s resources/mc /bin/
+ln -s resources/firewall /bin/

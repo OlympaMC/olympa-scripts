@@ -12,6 +12,10 @@
       {
         "source": "url",
         "name": "projet"
+      },
+      {
+        "source": "payload",
+        "name": "ref",
       }
     ],
     "response-message": "Executing redeploy script",
