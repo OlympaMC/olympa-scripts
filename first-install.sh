@@ -7,17 +7,19 @@
 ##            __/ |         | |
 ##           |___/          |_|
 ##
-## Install all requirement and add default value to OS
+## Install all requirement and add default value to OS. Use it only at once.
 ## Need to be run as root
 
-# Outils
-apt install curl htop nano nmap jq unzip
-# Logiciels
-apt install portsentry fail2ban mariadb-server default-jre default-jdk webhook screen
+echo resources/profile >> /etc/profile
 
-#echo resources/profile >> /etc/profile
-chmod 755 resources/firewall
-chmod 755 resources/mc
-ln -s resources/firewall /bin/
-ln -s resources/mc /bin/
-ln -s resources/firewall /bin/
+# Go
+wget https://golang.org/dl/go1.16.3.linux-amd64.tar.gz
+rm -rf /usr/local/go && tar -C /usr/local -xzf go1.16.3.linux-amd64.tar.gz
+go1.16.3.linux-amd64.tar.gz
+export PATH=$PATH:/usr/local/go/bingo
+export GOPATH=/usr/local/go/bingo
+wget github.com/prasmussen/gdrive
+
+# Google Drive Cli
+go get github.com/prasmussen/gdrive
+export PATH=$PATH:/usr/local/go/bin

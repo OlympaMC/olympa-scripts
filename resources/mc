@@ -56,7 +56,7 @@ USER="minecraft"
 
 # Serveurs:
 # ALL="$(ls $SERVEUR_DIR)"
-ALL="lobby1 omega bungee1 zta1"
+ALL="bungee1 lobby1 zta1 creatif1"
 
 # Backup mysql
 BDD_USER="root"
@@ -295,7 +295,12 @@ elif [ "$1" = "$BACKUP" ]; then
 			done
 			let "i = i + 1"
 			if [ "$serv_allumer2" != "" ]; then
-				echo -e "\e[91mLes serveurs\e[36m$serv_allumer2\e[91m ne sont pas encore fermé, attente $i secondes / 60 secondes\e[0m"
+				if (($i % 10)); then
+					echo -e "\e[91mLes serveurs\e[36m$serv_allumer2\e[91m ne sont pas encore fermé, attente $i secondes (max 60 secondes).\e[0m"
+				else
+					mc $STOP $serv_allumer2
+					echo -e "\e[91mTentative de fermeture de \e[36m$serv_allumer2\e[91m, attente $i secondes (max 60 secondes).\e[0m"
+				fi
 			fi
 		done
 		for element in `ls $SERVEUR_DIR`
@@ -393,10 +398,10 @@ elif [ "$1" = "$RESTART" ]; then
 				let "i = i + 1"
 				if [ "$serv_allumer2" != "" ]; then
 					if (($i % 20)); then
-						echo -e "\e[91mLes serveurs\e[36m$serv_allumer2\e[91m ne sont pas encore fermé, attente $i secondes (max 60 secondes)\e[0m"
+						echo -e "\e[91mLes serveurs\e[36m$serv_allumer2\e[91m ne sont pas encore fermé, attente $((i * 5)) secondes (max 60 secondes)\e[0m"
 					else
 						mc $STOP $serv_allumer2
-						echo -e "\e[91mTentative de fermeture de \e[36m$serv_allumer2\e[91m, attente $i secondes (max 60 secondes)\e[0m"
+						echo -e "\e[91mTentative de fermeture de \e[36m$serv_allumer2\e[91m, attente $((i * 5)) secondes (max 60 secondes)\e[0m"
 					fi
 				fi
 			done
@@ -632,7 +637,7 @@ elif [ "$1" = "deployto" ]; then
 				echo -e "\e[91mLe serveur $element est fermé.\e[0m"
 			fi
 		done
-		if [ -n "$will_w8" ]; then
+		if [ -n $will_w8 ]; then
 			sleep $DEPLOYTO_SECOND_BEFORE_SHUTDOWN
 		fi
 		mc $STOP $SERVS
@@ -657,10 +662,10 @@ elif [ "$1" = "deployto" ]; then
 			let "i = i + 1"
 			if [ "$serv_allumer2" != "" ]; then
 				if (($i % 20)); then
-					echo -e "\e[91mLes serveurs\e[36m$serv_allumer2\e[91m ne sont pas encore fermé, attente $i secondes (max 60 secondes).\e[0m"
+					echo -e "\e[91mLes serveurs\e[36m$serv_allumer2\e[91m ne sont pas encore fermé, attente $((i * 5)) secondes (max 60 secondes).\e[0m"
 				else
 					mc $STOP $serv_allumer2
-					echo -e "\e[91mTentative de fermeture de \e[36m$serv_allumer2\e[91m, attente $i secondes (max 60 secondes).\e[0m"
+					echo -e "\e[91mTentative de fermeture de \e[36m$serv_allumer2\e[91m, attente $((i * 5)) secondes (max 60 secondes).\e[0m"
 				fi
 			fi
 		done
