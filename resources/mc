@@ -331,7 +331,7 @@ elif [ "$1" = "$BACKUP" ]; then
 			fi
 		done
 	else
-		echo -e "\e[91mMAJ Paperspigot échoué\e[0m"
+		echo -e "\e[92mMAJ Paperspigot pas nécessaire\e[0m"
 	fi
 	echo -e "\e[92mRécupération de la dernière MAJ de WaterFall...\e[0m"
 	old_build_id=`cat bungee_build_id.txt`
@@ -349,7 +349,7 @@ elif [ "$1" = "$BACKUP" ]; then
 			fi
 		done
 	else
-		echo -e "\e[91mMAJ bungee échoué\e[0m"
+		echo -e "\e[92mMAJ bungee pas nécessaire\e[0m"
 	fi
 	echo -e "\e[92mRéouverture de tous les serveurs...\e[0m"
 	$0 $START all
