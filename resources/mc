@@ -87,7 +87,7 @@ if [ "$1" = "unban" ]; then
 		fail2ban-client set mysqld-auth unbanip $2
 		sed -i '/$2/d' /etc/hosts.deny
 	else
-		echo -e "\e[35mUsage\e[0;35m mc unban <ip>\e[0m"
+		echo -e "\e[35mUsage\e[0;35m $0 unban <ip>\e[0m"
 	fi
 #- - - - - - - - - - - - - - - - - - - - - - - - - - IS OPEN - - - - - - - - - - - - - - - - - - - - - - - - - -
 elif [ "$1" = "isopen" ]; then
@@ -279,7 +279,7 @@ elif [ "$1" = "$BACKUP" ]; then
 		done
 		echo -e "\e[93mTous les joueurs ont été kick.\e[0m"
 		sleep 5
-		mc $STOP $serv_allumer
+		$0 $STOP $serv_allumer
 		
 		serv_allumer2="open"
 		i=0
@@ -296,7 +296,7 @@ elif [ "$1" = "$BACKUP" ]; then
 			let "i = i + 1"
 			if [ "$serv_allumer2" != "" ]; then
 				if ($i % 20 == 0); then
-					mc $STOP $serv_allumer2
+					$0 $STOP $serv_allumer2
 					echo -e "\e[91mTentative de fermeture de \e[36m$serv_allumer2\e[91m, attente $((i * 5)) secondes (max 60 secondes).\e[0m"
 				else
 					echo -e "\e[91mLes serveurs\e[36m$serv_allumer2\e[91m ne sont pas encore fermé, attente $((i * 5)) secondes (max 60 secondes).\e[0m"
@@ -312,8 +312,8 @@ elif [ "$1" = "$BACKUP" ]; then
 			fi
 		done
 	fi
-	mc backupserv
-	mc backupbdd
+	$0 backupserv
+	$0 backupbdd
 
 	echo -e "\e[92mRécupération de la dernière MAJ de Paperspigot...\e[0m"
 	old_build_id=`cat paperspigot_build_id.txt`
@@ -352,7 +352,7 @@ elif [ "$1" = "$BACKUP" ]; then
 		echo -e "\e[91mMAJ bungee échoué\e[0m"
 	fi
 	echo -e "\e[92mRéouverture de tous les serveurs...\e[0m"
-	mc $START all
+	$0 $START all
 	echo -e "\e[32mTous est parfait, les serveurs se lancent !\e[0m"
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - RESTART - - - - - - - - - - - - - - - - - - - - - - - - - -
 elif [ "$1" = "$RESTART" ]; then
@@ -375,7 +375,7 @@ elif [ "$1" = "$RESTART" ]; then
 			echo -e "\e[31m$serv_fermer\e[0;31m n'est pas ouvert\e[0m"
 		fi
 		if [ -n "$serv_vafermer" ]; then
-			mc $STOP $serv_vafermer
+			$0 $STOP $serv_vafermer
 			# ----
 			for element in $serv_vafermer
 			do
@@ -400,7 +400,7 @@ elif [ "$1" = "$RESTART" ]; then
 					if (($i % 10 == 1)); then
 						echo -e "\e[91mLes serveurs\e[36m$serv_allumer2\e[91m ne sont pas encore fermé, attente $((i * 5)) secondes (max 60 secondes)\e[0m"
 					else
-						mc $STOP $serv_allumer2
+						$0 $STOP $serv_allumer2
 						echo -e "\e[91mTentative de fermeture de \e[36m$serv_allumer2\e[91m, attente $((i * 5)) secondes (max 60 secondes)\e[0m"
 					fi
 				fi
@@ -412,7 +412,7 @@ elif [ "$1" = "$RESTART" ]; then
 					echo -e "\e[91m$element a été fermer de force.\e[0m"
 				fi
 			done
-			mc $START $serv_vafermer
+			$0 $START $serv_vafermer
 			echo -e "\e[36m$serv_vafermer\e[0;36m s'est redémarrer \e[0m"
 		fi
 	else
@@ -439,7 +439,7 @@ elif [ "$1" = "copy" ]; then
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - LINK - - - - - - - - - - - - - - - - - - - - - - - - - -
 elif [ "$1" = "link" ]; then
 
-	USAGElink="/mc link <server> <mode>"
+	USAGElink="/$0 link <server> <mode>"
 	
 	if [ -d "/home/serveurs/.other/link/$3" ]; then
 		mode="$3"
@@ -503,7 +503,7 @@ elif [ "$1" = "deploy" ]; then
 				fi
 				for element2 in $SERVS
 				do
-					if [ `mc isopen $element2` -eq "0" ]; then
+					if [ `$0 isopen $element2` -eq "0" ]; then
 						#if [[ $element2 == bungee* ]]; then
 						#	COMMAND="alertraw"
 						#else
@@ -538,7 +538,7 @@ elif [ "$1" = "deploy" ]; then
 		fi
 		for element2 in $SERVS
 		do
-			if [ `mc isopen $element2` -eq "0" ]; then
+			if [ `$0 isopen $element2` -eq "0" ]; then
 				echo -e "\e[32mLe serveur $element2 est ouvert, il va devoir redémarrer\e[0m"
 			else
 				echo -e "\e[91mLe serveur $element2 est fermé\e[0m"
@@ -555,7 +555,7 @@ elif [ "$1" = "deploy" ]; then
 		else
 			echo -e "\e[32mLe jar du $PLUGIN a été crée.\e[0m"
 			echo -e "\e[32mIl faut maintenant copier le jar sur le serveur.\e[0m"
-			echo "mc deployto $PLUGIN $BRANCH $SERVS"
+			echo "$0 deployto $PLUGIN $BRANCH $SERVS"
 		fi
 		#echo -e "\e[32mou\e[0m"
 		#echo "cp $REPO_DIR/olympa$PLUGIN/target/Olympa*.jar $SERVEUR_DIR/<serveur>/plugins/"
@@ -582,7 +582,7 @@ elif [ "$1" = "deployauto" ] || [ "$1" = "autodeploy" ]; then
 		if [ -n "$3" ] && [[ $3 == "refs/heads/"* ]]; then
 			BRANCH="${BRANCH#"refs/heads/"}"
 		fi
-		mc deploy $PLUGIN $BRANCH $SERVS && mc deployto $PLUGIN $BRANCH $SERVS
+		$0 deploy $PLUGIN $BRANCH $SERVS && $0 deployto $PLUGIN $BRANCH $SERVS
 	else
 		echo -e "\e[91mLe 1er argument doit être dans :\n${repos//olympa}\nou ALL\nLe 2ème une branch :\ndev\master\nou autre branch qui existe\net les autres (faculatif) doivent être un un serveur dans :\n$(ls $SERVEUR_DIR)\n\e[0m"
 	fi
@@ -602,7 +602,7 @@ elif [ "$1" = "deployto" ]; then
 	fi
 	if [ -n "$PLUGIN" ]; then
 		if [ "$PLUGIN" = "buildtools" ]; then
-			echo -e "\e[91mImpossible de deployTo les paperclip & bungee. C'est gérer automatiquement à chaque mc backup.\e[0m"
+			echo -e "\e[91mImpossible de deployTo les paperclip & bungee. C'est gérer automatiquement à chaque $0 backup.\e[0m"
 			exit 0
 		elif [ "$PLUGIN" = "scripts" ]; then
 			echo -e "\e[0;36mInutile de deployTo les scripts.\e[0m"
@@ -629,7 +629,7 @@ elif [ "$1" = "deployto" ]; then
 			else
 				COMMAND="tellraw @a"
 			fi
-			if [ `mc isopen $element` -eq "0" ]; then
+			if [ `$0 isopen $element` -eq "0" ]; then
 				will_w8="true"
 				screen -S $element -p 0 -X stuff "$COMMAND [{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},{\"text\":\"Le serveur va redémarrer dans $DEPLOYTO_SECOND_BEFORE_SHUTDOWN secondes afin de faire une mise à jour du Olympa$PLUGIN...\",\"color\":\"red\"}]^M"
 				echo -e "\e[32mLe serveur $element est ouvert, les joueurs ont été informés du redémarrage dans $DEPLOYTO_SECOND_BEFORE_SHUTDOWN secondes.\e[0m"
@@ -640,7 +640,7 @@ elif [ "$1" = "deployto" ]; then
 		if [ -n $will_w8 ]; then
 			sleep $DEPLOYTO_SECOND_BEFORE_SHUTDOWN
 		fi
-		mc $STOP $SERVS
+		$0 $STOP $SERVS
 		for element in $SERVS
 		do
 			if [ `ls /run/screen/S-$USER | grep -w $element | wc -l` -eq "1" ]; then
@@ -662,7 +662,7 @@ elif [ "$1" = "deployto" ]; then
 			let "i = i + 1"
 			if [ "$serv_allumer2" != "" ]; then
 				if ($i % 10 == 0); then
-					mc $STOP $serv_allumer2
+					$0 $STOP $serv_allumer2
 					echo -e "\e[91mTentative de fermeture de \e[36m$serv_allumer2\e[91m, attente $((i * 5)) secondes (max 60 secondes).\e[0m"
 				else
 					echo -e "\e[91mLes serveurs\e[36m$serv_allumer2\e[91m ne sont pas encore fermé, attente $((i * 5)) secondes (max 60 secondes).\e[0m"
@@ -687,7 +687,7 @@ elif [ "$1" = "deployto" ]; then
 					else
 						COMMAND="tellraw @a"
 					fi
-					if [ `mc isopen $element2` -eq "0" ]; then
+					if [ `$0 isopen $element2` -eq "0" ]; then
 						screen -S $element2 -p 0 -X stuff "$COMMAND [{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},{\"text\":\"La copie du jar du Olympa$PLUGIN sur le serveur $selement a échoué.\",\"color\":\"red\"}]^M"
 						echo -e "\e[91mLe serveur $element2 est ouvert, les joueurs ont été informés de l'échec.\e[0m"
 					else
@@ -700,7 +700,7 @@ elif [ "$1" = "deployto" ]; then
 			fi
 		done
 		if [ "$serv_allumer" != "" ]; then
-			mc $START $serv_allumer
+			$0 $START $serv_allumer
 		fi
 	else
 		for element in `ls $REPO_DIR`
@@ -751,5 +751,5 @@ elif [ "$1" = "redis" ]; then
 	redis-cli -a 1rWS1Fmj7s4snEDCQgw3Mcznf8ShfrLZpPkKtstu5coV9PpDI1
 #- - - - - - - - - - - - - - - - - - - - - - - - - - USAGE - - - - - - - - - - - - - - - - - - - - - - - - - -
 else
-	echo -e "\e[31m'${*:0}' Unknow\nUSAGE"
+	echo -e "\e[31m'${*:0}' Unknow\nUSAGE\e[0m"
 fi
