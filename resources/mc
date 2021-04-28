@@ -352,7 +352,7 @@ elif [ "$1" = "$BACKUP" ]; then
 		echo -e "\e[91mMAJ bungee échoué\e[0m"
 	fi
 	echo -e "\e[92mRéouverture de tous les serveurs...\e[0m"
-	mc $start all
+	mc $START all
 	echo -e "\e[32mTous est parfait, les serveurs se lancent !\e[0m"
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - RESTART - - - - - - - - - - - - - - - - - - - - - - - - - -
 elif [ "$1" = "$RESTART" ]; then
@@ -412,7 +412,7 @@ elif [ "$1" = "$RESTART" ]; then
 					echo -e "\e[91m$element a été fermer de force.\e[0m"
 				fi
 			done
-			mc $start $serv_vafermer
+			mc $START $serv_vafermer
 			echo -e "\e[36m$serv_vafermer\e[0;36m s'est redémarrer \e[0m"
 		fi
 	else
