@@ -607,6 +607,10 @@ elif [ "$1" = "deployto" ]; then
 		elif [ "$PLUGIN" = "scripts" ]; then
 			echo -e "\e[0;36mInutile de deployTo les scripts.\e[0m"
 			exit 0
+
+		elif [ "$PLUGIN" = "manager" ]; then
+			echo -e "\e[0;36mInutile de deployTo le bot. Restart effectué.\e[0m"
+			exit 0
 		elif [ -n "$SERVS" ]; then
 			if [ "$SERVS" = "ALL" ]; then
 				SERVS="$(ls $SERVEUR_DIR)"
