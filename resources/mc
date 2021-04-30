@@ -295,7 +295,7 @@ elif [ "$1" = "$BACKUP" ]; then
 			done
 			let "i = i + 1"
 			if [ "$serv_allumer2" != "" ]; then
-				if ($i % 20 == 0); then
+				if (($i % 10 == 0)); then
 					$0 $STOP $serv_allumer2
 					echo -e "\e[91mTentative de fermeture de \e[36m$serv_allumer2\e[91m, attente $((i * 5)) secondes (max 60 secondes).\e[0m"
 				else
@@ -665,7 +665,7 @@ elif [ "$1" = "deployto" ]; then
 			done
 			let "i = i + 1"
 			if [ "$serv_allumer2" != "" ]; then
-				if ($i % 10 == 0); then
+				if (($i % 10 == 0)); then
 					$0 $STOP $serv_allumer2
 					echo -e "\e[91mTentative de fermeture de \e[36m$serv_allumer2\e[91m, attente $((i * 5)) secondes (max 60 secondes).\e[0m"
 				else
