@@ -523,7 +523,7 @@ elif [ "$1" = "deploy" ]; then
 			do
 				screen -S $element2 -p 0 -X stuff "tellraw @a [\"\",{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},{\"text\":\"Echec du build du plugin Olympa$PLUGIN ...\",\"color\":\"dark_red\"}]^M"
 			done
-			echo -e "\e[91mLe build de $selement a échoué ! Erreur $rc\e[0m"; exit $rc
+			echo -e "\e[91mLe build de $selement a échoué !\e[0m"; exit 1
 		else
 			echo -e "\e[32mLe jar du $PLUGIN a été crée.\e[0m"
 			echo -e "\e[32mIl faut maintenant copier le jar sur le serveur.\e[0m"
@@ -668,7 +668,7 @@ elif [ "$1" = "deployto" ]; then
 						echo -e "\e[91mLe serveur $element2 est fermé, impossible de les informés de l'échec.\e[0m"
 					fi
 				done
-				echo -e "\e[91mLa copy du $PLUGIN a échoué ! Erreur $rc\e[0m"; exit $rc
+				echo -e "\e[91mLa copy du $PLUGIN a échoué !\e[0m"; exit 1
 			else
 				echo -e "\e[36molympa$PLUGIN\e[0;36m a été deploy sur \e[36m$element\e[0m"
 			fi
