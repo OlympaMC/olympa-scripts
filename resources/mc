@@ -496,7 +496,7 @@ elif [ "$1" = "deploy" ]; then
 		elif [ "$PLUGIN" = "ALL" ]; then
 			for element in `ls $REPO_DIR`
 			do
-				$0 deployto $element $BRANCH $SERVS
+				$0 deploy $element $BRANCH $SERVS
 			done
 		elif [ -n "$4" ]; then
 			SERVS="${@:4}"
@@ -519,11 +519,7 @@ elif [ "$1" = "deploy" ]; then
 		cd $REPO_DIR/olympa$PLUGIN/
 		sh deploy.sh ${@:3}
 		if [ "$?" -ne 0 ]; then
-			for element2 in $SERVS
-			do
-				screen -S $element2 -p 0 -X stuff "tellraw @a [\"\",{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},{\"text\":\"Echec du build du plugin Olympa$PLUGIN ...\",\"color\":\"dark_red\"}]^M"
-			done
-			echo -e "\e[91mLe build de $selement a échoué !\e[0m"; exit 1
+			echo -e "\e[91mLe build de $PLUGIN a échoué !\e[0m"; exit 1
 		else
 			echo -e "\e[32mLe jar du $PLUGIN a été crée.\e[0m"
 			echo -e "\e[32mIl faut maintenant copier le jar sur le serveur.\e[0m"
@@ -604,17 +600,17 @@ elif [ "$1" = "deployto" ]; then
 				COMMAND="tellraw @a"
 			fi
 			if [ `$0 isopen $element` -eq "0" ]; then
-				will_w8="true"
+				will_w8+=" $element"
 				screen -S $element -p 0 -X stuff "$COMMAND [{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},{\"text\":\"Le serveur va redémarrer dans $DEPLOYTO_SECOND_BEFORE_SHUTDOWN secondes afin de faire une mise à jour du Olympa$PLUGIN...\",\"color\":\"red\"}]^M"
 				echo -e "\e[32mLe serveur $element est ouvert, les joueurs ont été informés du redémarrage dans $DEPLOYTO_SECOND_BEFORE_SHUTDOWN secondes.\e[0m"
 			else
 				echo -e "\e[91mLe serveur $element est fermé.\e[0m"
 			fi
 		done
-		if [ -n $will_w8 ]; then
+		if [ -z $will_w8 ]; then
 			sleep $DEPLOYTO_SECOND_BEFORE_SHUTDOWN
 		fi
-		$0 $STOP $SERVS
+		$0 $STOP $will_w8
 		for element in $SERVS
 		do
 			if [ `ls /run/screen/S-$USER | grep -w $element | wc -l` -eq "1" ]; then
@@ -654,6 +650,7 @@ elif [ "$1" = "deployto" ]; then
 		do
 			cp $REPO_DIR/olympa$PLUGIN/target/Olympa*.jar $SERVEUR_DIR/$element/plugins/
 			if [ "$?" -ne 0 ]; then
+				echo -e "\e[91mLa copy du $PLUGIN a échoué !\e[0m"; exit 1
 				for element2 in $serv_allumer
 				do
 					if [[ $element2 == bungee* ]]; then
@@ -662,13 +659,12 @@ elif [ "$1" = "deployto" ]; then
 						COMMAND="tellraw @a"
 					fi
 					if [ `$0 isopen $element2` -eq "0" ]; then
-						screen -S $element2 -p 0 -X stuff "$COMMAND [{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},{\"text\":\"La copie du jar du Olympa$PLUGIN sur le serveur $selement a échoué.\",\"color\":\"red\"}]^M"
+						screen -S $element2 -p 0 -X stuff "$COMMAND [{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},{\"text\":\"La mise à jour de Olympa$PLUGIN sur le serveur $selement a échoué. Le serveur ne va pas redémarrer.\",\"color\":\"red\"}]^M"
 						echo -e "\e[91mLe serveur $element2 est ouvert, les joueurs ont été informés de l'échec.\e[0m"
 					else
 						echo -e "\e[91mLe serveur $element2 est fermé, impossible de les informés de l'échec.\e[0m"
 					fi
 				done
-				echo -e "\e[91mLa copy du $PLUGIN a échoué !\e[0m"; exit 1
 			else
 				echo -e "\e[36molympa$PLUGIN\e[0;36m a été deploy sur \e[36m$element\e[0m"
 			fi
