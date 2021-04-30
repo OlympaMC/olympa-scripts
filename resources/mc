@@ -516,7 +516,8 @@ elif [ "$1" = "deploy" ]; then
 			fi
 		done
 		chmod 755 $REPO_DIR/olympa$PLUGIN/deploy.sh
-		cd $REPO_DIR/olympa$PLUGIN/ && sh deploy.sh ${@:3}
+		cd $REPO_DIR/olympa$PLUGIN/
+		sh deploy.sh ${@:3}
 		if [ "$?" -ne 0 ]; then
 			for element2 in $SERVS
 			do
