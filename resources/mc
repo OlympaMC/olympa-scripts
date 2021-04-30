@@ -240,33 +240,33 @@ elif [ "$1" = "$BACKUP" ]; then
 		do
 			screen -S $element -p 0 -X stuff "tellraw @a [\"\",{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},{\"text\":\"Redémarrage des serveurs dans 15 minutes.\",\"bold\":true,\"color\":\"red\"}]^M"
 		done
-		echo -e "\e[93mFermeture dans 15 mins.\e[0m"
+		echo -e "\e[93mFermeture dans 15 mins. Le redémarrage prendra environ 20 mins.\e[0m"
 		sleep 300
 		
 		for element in $backupm
 		do
 			screen -S $element -p 0 -X stuff "tellraw @a [\"\",{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},{\"text\":\"Redémarrage des serveurs dans 10 minutes.\",\"bold\":true,\"color\":\"red\"}]^M"
 		done
-		echo -e "\e[93mFermeture dans 10 mins.\e[0m"
+		echo -e "\e[93mFermeture dans 10 mins. Le redémarrage prendra environ 20 mins.\e[0m"
 		sleep 300
 		
 		for element in $backupm
 		do
 			screen -S $element -p 0 -X stuff "tellraw @a [\"\",{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},{\"text\":\"Redémarrage des serveurs dans 5 minutes.\",\"bold\":true,\"color\":\"red\"}]^M"
 		done
-		echo -e "\e[93mFermeture dans 5 mins.\e[0m"
+		echo -e "\e[93mFermeture dans 5 mins. Le redémarrage prendra environ 20 mins.\e[0m"
 		sleep 180
 		for element in $backupm
 		do
 			screen -S $element -p 0 -X stuff "tellraw @a [\"\",{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},{\"text\":\"Redémarrage des serveurs dans 2 minutes.\",\"bold\":true,\"color\":\"red\"}]^M"
 		done
-		echo -e "\e[93mFermeture dans 2 mins.\e[0m"
+		echo -e "\e[93mFermeture dans 2 mins. Le redémarrage prendra environ 20 mins.\e[0m"
 		sleep 60
 		for element in $backupm
 		do
 			screen -S $element -p 0 -X stuff "tellraw @a [\"\",{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},{\"text\":\"Redémarrage des serveurs dans 1 minutes.\",\"bold\":true,\"color\":\"red\"}]^M"
 		done
-		echo -e "\e[93mFermeture dans 1 min.\e[0m"
+		echo -e "\e[93mFermeture dans 1 min. Le redémarrage prendra environ 20 mins.\e[0m"
 		sleep 55
 		for element in $backupm
 		do
@@ -295,7 +295,7 @@ elif [ "$1" = "$BACKUP" ]; then
 			done
 			let "i = i + 1"
 			if [ "$serv_allumer2" != "" ]; then
-				if (($i % 10 == 0)); then
+				if ! (( $i % 10 )) ; then
 					$0 $STOP $serv_allumer2
 					echo -e "\e[91mTentative de fermeture de \e[36m$serv_allumer2\e[91m, attente $((i * 5)) secondes (max 60 secondes).\e[0m"
 				else
@@ -397,7 +397,7 @@ elif [ "$1" = "$RESTART" ]; then
 				done
 				let "i = i + 1"
 				if [ "$serv_allumer2" != "" ]; then
-					if (($i % 10 == 1)); then
+					if ! (( $i % 10 )); then
 						echo -e "\e[91mLes serveurs\e[36m$serv_allumer2\e[91m ne sont pas encore fermé, attente $((i * 5)) secondes (max 60 secondes)\e[0m"
 					else
 						$0 $STOP $serv_allumer2
@@ -496,43 +496,14 @@ elif [ "$1" = "deploy" ]; then
 		elif [ "$PLUGIN" = "ALL" ]; then
 			for element in `ls $REPO_DIR`
 			do
-				if [ "$(cat $REPO_DIR/$element/for-server)" = "ALL" ]; then
-					SERVS=`ls $SERVEUR_DIR`
-				else
-					SERVS=`cat $REPO_DIR/$element/for-server`
-				fi
-				for element2 in $SERVS
-				do
-					if [ `$0 isopen $element2` -eq "0" ]; then
-						#if [[ $element2 == bungee* ]]; then
-						#	COMMAND="alertraw"
-						#else
-						#	COMMAND="tellraw @a"
-						#fi
-						#screen -S $element2 -p 0 -X stuff "$COMMAND [\"\",{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},{\"text\":\"Tentative de mise à jour du plugin $element $BRANCH sur ${@:4} ...\",\"color\":\"dark_red\"}]^M"
-						#screen -S $element2 -p 0 -X stuff "$COMMAND [\"\",{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},{\"text\":\"Redémarrage automatique de ${@:4} imminent.\",\"color\":\"red\"}]^M"
-						echo -e "\e[32mLe serveur $element2 est ouvert, il va devoir redémarrer après le build.\e[0m"
-					else
-						echo -e "\e[91mLe serveur $element2 est fermé.\e[0m"
-					fi
-				done
-				if [ -f "$REPO_DIR/$element/deploy.sh" ]; then
-					cd $REPO_DIR/$element/ && sh deploy.sh $BRANCH $SERVS
-					if [[ "$?" -ne 0 ]] ; then
-						for element2 in $SERVS
-						do
-							screen -S $element2 -p 0 -X stuff "tellraw @a [\"\",{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},{\"text\":\"Echec du build du plugin $selement ...\",\"color\":\"dark_red\"}]^M"
-						done
-						echo -e "\e[91mLe build de $selement a échoué ! Erreur $rc\e[0m"; exit $rc
-					else
-						echo -e "\e[32mLe jar de $selement a été crée.\e[0m"
-					fi
-				fi
+				$0 deployto $element $BRANCH $SERVS
 			done
 		elif [ -n "$4" ]; then
 			SERVS="${@:4}"
 		elif [ "$(cat $REPO_DIR/olympa$PLUGIN/for-server)" = "ALL" ]; then
 			SERVS=`ls $SERVEUR_DIR`
+		elif [[ $PLUGIN == olympa* ]]; then
+			SERVS=`cat $REPO_DIR/$PLUGIN/for-server`
 		else
 			SERVS=`cat $REPO_DIR/olympa$PLUGIN/for-server`
 		fi
@@ -546,7 +517,7 @@ elif [ "$1" = "deploy" ]; then
 		done
 		chmod 755 $REPO_DIR/olympa$PLUGIN/deploy.sh
 		cd $REPO_DIR/olympa$PLUGIN/ && sh deploy.sh ${@:3}
-		if [[ "$?" -ne 0 ]] ; then
+		if [ "$?" -ne 0 ]; then
 			for element2 in $SERVS
 			do
 				screen -S $element2 -p 0 -X stuff "tellraw @a [\"\",{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},{\"text\":\"Echec du build du plugin Olympa$PLUGIN ...\",\"color\":\"dark_red\"}]^M"
@@ -557,8 +528,6 @@ elif [ "$1" = "deploy" ]; then
 			echo -e "\e[32mIl faut maintenant copier le jar sur le serveur.\e[0m"
 			echo "$0 deployto $PLUGIN $BRANCH $SERVS"
 		fi
-		#echo -e "\e[32mou\e[0m"
-		#echo "cp $REPO_DIR/olympa$PLUGIN/target/Olympa*.jar $SERVEUR_DIR/<serveur>/plugins/"
 	else
 		for element in `ls $REPO_DIR`
 		do
@@ -665,7 +634,7 @@ elif [ "$1" = "deployto" ]; then
 			done
 			let "i = i + 1"
 			if [ "$serv_allumer2" != "" ]; then
-				if (($i % 10 == 0)); then
+				if ! (( $i % 10 )) ; then
 					$0 $STOP $serv_allumer2
 					echo -e "\e[91mTentative de fermeture de \e[36m$serv_allumer2\e[91m, attente $((i * 5)) secondes (max 60 secondes).\e[0m"
 				else
