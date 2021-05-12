@@ -77,8 +77,6 @@ FTP_PASSWORD=""
 # Dossier des backups sur le ftp
 FTP_DIR="/serveurs/"
 
-DEPLOYTO_SECOND_BEFORE_SHUTDOWN="10"
-
 #- - - - - - - - - - - - - - - - - - - - - - - - - - UNBAN IP - - - - - - - - - - - - - - - - - - - - - - - - - -
 if [ "$1" = "unban" ]; then
 	if [ -n "$2" ]; then
@@ -601,14 +599,14 @@ elif [ "$1" = "deployto" ]; then
 			fi
 			if [ `$0 isopen $element` -eq "0" ]; then
 				will_w8+=" $element"
-				screen -S $element -p 0 -X stuff "$COMMAND [{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},{\"text\":\"Le serveur va redémarrer dans $DEPLOYTO_SECOND_BEFORE_SHUTDOWN secondes afin de faire une mise à jour du Olympa$PLUGIN...\",\"color\":\"red\"}]^M"
-				echo -e "\e[32mLe serveur $element est ouvert, les joueurs ont été informés du redémarrage qui arrive dans $DEPLOYTO_SECOND_BEFORE_SHUTDOWN secondes.\e[0m"
+				screen -S $element -p 0 -X stuff "$COMMAND [{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},{\"text\":\"Le serveur va redémarrer dans 10 secondes afin de faire une mise à jour du Olympa$PLUGIN...\",\"color\":\"red\"}]^M"
+				echo -e "\e[32mLe serveur $element est ouvert, les joueurs ont été informés du redémarrage qui arrive dans 10 secondes.\e[0m"
 			else
 				echo -e "\e[91mLe serveur $element est fermé.\e[0m"
 			fi
 		done
 		if [ ! -z "$will_w8" ]; then
-			sleep $DEPLOYTO_SECOND_BEFORE_SHUTDOWN
+			sleep 10
 			$0 $STOP $will_w8
 		fi
 		for element in $SERVS
