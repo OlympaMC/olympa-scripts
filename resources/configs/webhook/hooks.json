@@ -16,6 +16,10 @@
       {
         "source": "payload",
         "name": "ref",
+      },
+      {
+        "source": "url",
+        "name": "server"
       }
     ],
     "response-message": "Executing redeploy script",
