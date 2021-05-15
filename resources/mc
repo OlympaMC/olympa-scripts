@@ -92,8 +92,9 @@ if [ "$1" = "unban" ]; then
 #- - - - - - - - - - - - - - - - - - - - - - - - - - IS OPEN - - - - - - - - - - - - - - - - - - - - - - - - - -
 elif [ "$1" = "isopen" ]; then
 
+	U=$(stat -c '%U' $SERVEUR_DIR/$2)
 	if [ -n "$2" ]; then
-		if [ `ls /run/screen/S-$USER | grep -w $2 | wc -l` -eq "0" ]; then
+		if [ `ls /run/screen/S-$U | grep -w $2 | wc -l` -eq "0" ]; then
 			echo "1"
 		else
 			serv_ouvert+=" $element"
@@ -115,9 +116,9 @@ elif [ "$1" = "$START" ]; then
 		for element in $SERV
 		do
 		if [ -d "$SERVEUR_DIR/$element" ];then
-			USER=$(stat -c '%U' $SERVEUR_DIR/$element)
+			U=$(stat -c '%U' $SERVEUR_DIR/$element)
 			# if [ -f "$SERVEUR_DIR/$element/$STARTSH" ];then
-				if [ `ls /run/screen/S-$USER | grep -w $element | wc -l` -eq "0" ]; then
+				if [ `ls /run/screen/S-$U | grep -w $element | wc -l` -eq "0" ]; then
 					serv_lance+=" $element"
 				else
 					serv_ouvert+=" $element"
@@ -166,8 +167,8 @@ elif [ "$1" = "$STOP" ]; then
 		fi
 		for element in $SERV
 		do
-			USER=$(stat -c '%U' $SERVEUR_DIR/$element)
-			if [ `ls /run/screen/S-$USER | grep -w $element | wc -l` -eq "1" ]; then
+			U=$(stat -c '%U' $SERVEUR_DIR/$element)
+			if [ `ls /run/screen/S-$U | grep -w $element | wc -l` -eq "1" ]; then
 				if [[ $element == bungee* ]]; then
 					serv_vafermerb+=" $element"
 				else
@@ -182,7 +183,11 @@ elif [ "$1" = "$STOP" ]; then
 		for element in $serv_vafermerb
 		do
 			U=$(stat -c '%U' $SERVEUR_DIR/$element)
-			screen -S $element -X stuff 'end\r'
+			if [ $U != $USER ]; then
+				su -m $U -c "screen -S $element -X stuff 'end\r'"
+			else
+				screen -S $element -X stuff 'end\r'
+			fi
 		done
 		echo -e "\e[36m$serv_vafermerb\e[0;36m s'est arrêté (BUNGEE)\e[0m"
 		
@@ -509,7 +514,7 @@ elif [ "$1" = "deploy" ]; then
 		fi
 		for element2 in $SERVS
 		do
-			if [ `$0 isopen $element2` -eq "0" ]; then
+			if [ `$0 isopen $element2` -eq "1" ]; then
 				echo -e "\e[32mLe serveur $element2 est ouvert, il va devoir redémarrer\e[0m"
 			else
 				echo -e "\e[91mLe serveur $element2 est fermé\e[0m"
@@ -599,7 +604,7 @@ elif [ "$1" = "deployto" ]; then
 			else
 				COMMAND="tellraw @a"
 			fi
-			if [ `$0 isopen $element` -eq "0" ]; then
+			if [ `$0 isopen $element` -eq "1" ]; then
 				will_w8+=" $element"
 				screen -S $element -p 0 -X stuff "$COMMAND [{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},{\"text\":\"Le serveur va redémarrer dans $DEPLOYTO_SECOND_BEFORE_SHUTDOWN secondes afin de faire une mise à jour du Olympa$PLUGIN...\",\"color\":\"red\"}]^M"
 				echo -e "\e[32mLe serveur $element est ouvert, les joueurs ont été informés du redémarrage qui arrive dans $DEPLOYTO_SECOND_BEFORE_SHUTDOWN secondes.\e[0m"
@@ -658,7 +663,7 @@ elif [ "$1" = "deployto" ]; then
 					else
 						COMMAND="tellraw @a"
 					fi
-					if [ `$0 isopen $element2` -eq "0" ]; then
+					if [ `$0 isopen $element2` -eq "1" ]; then
 						screen -S $element2 -p 0 -X stuff "$COMMAND [{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},{\"text\":\"La mise à jour de Olympa$PLUGIN sur le serveur $selement a échoué. Le serveur ne va pas redémarrer.\",\"color\":\"red\"}]^M"
 						echo -e "\e[91mLe serveur $element2 est ouvert, les joueurs ont été informés de l'échec.\e[0m"
 					else
