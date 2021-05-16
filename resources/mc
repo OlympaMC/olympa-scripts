@@ -93,8 +93,11 @@ if [ "$1" = "unban" ]; then
 elif [ "$1" = "isopen" ]; then
 
 	U=$(stat -c '%U' $SERVEUR_DIR/$2)
+	if [ "$?" -ne 0 ]; then
+		U=$USER
+	fi
 	if [ -n "$2" ]; then
-		if [ `ls /run/screen/S-$U | grep -w $2 | wc -l` -eq "0" ]; then
+		if [ `su -m $U -c 'ls /run/screen/S-$U | grep -w $2 | wc -l'` -eq "0" ]; then
 			echo "1"
 		else
 			serv_ouvert+=" $element"
