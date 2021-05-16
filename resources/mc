@@ -98,10 +98,10 @@ elif [ "$1" = "isopen" ]; then
 	#fi
 	if [ -n "$2" ]; then
 		if [ `ls /run/screen/S-$U | grep -w $2 | wc -l` -eq "0" ]; then
-			echo "1"
+			echo "0"
 		else
 			serv_ouvert+=" $element"
-			echo "0"
+			echo "1"
 		fi
 	else
 		echo "-1"
