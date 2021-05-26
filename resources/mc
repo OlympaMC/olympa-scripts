@@ -134,7 +134,7 @@ elif [ "$1" = "$START" ]; then
 		fi
 		done
 		if [ "$element" = "omega" ]; then
-			sh -c "cd /home/omega; sh $STARTSH"
+			bash -c "cd /home/omega; bash $STARTSH"
 			echo -e "\e[32m$element\e[0;32m a démarré\e[0m"
 		else 
 			if [ -n "$serv_dossier" ]; then
@@ -150,7 +150,7 @@ elif [ "$1" = "$START" ]; then
 				for element in $serv_lance
 				do
 					U=$(stat -c '%U' $SERVEUR_DIR/$element)
-					sh -c "cd $SERVEUR_DIR/$element; sh $STARTSH"
+					bash -c "cd $SERVEUR_DIR/$element; bash $STARTSH"
 				done
 				echo -e "\e[32m$serv_lance\e[0;32m a démarré\e[0m"
 			fi
@@ -498,10 +498,10 @@ elif [ "$1" = "deploy" ]; then
 	fi
 	if [ -n "$PLUGIN" ]; then
 		if [ "$PLUGIN" = "buildtools" ]; then
-			cd $REPO_DIR/$PLUGIN/ && sh start.sh
+			cd $REPO_DIR/$PLUGIN/ && bash start.sh
 			echo -e "\e[32mLe jar de dernière version de Spigot a été crée.\e[0m"
 		elif [ "$PLUGIN" = "scripts" ]; then
-			cd $REPO_DIR/olympa$PLUGIN/ && sh deploy.sh
+			cd $REPO_DIR/olympa$PLUGIN/ && bash deploy.sh
 			echo -e "\e[32mMise à jours des scripts de la machine effectué.\e[0m"
 		elif [ "$PLUGIN" = "ALL" ]; then
 			for element in `ls $REPO_DIR`
@@ -527,7 +527,7 @@ elif [ "$1" = "deploy" ]; then
 		done
 		chmod 755 $REPO_DIR/*$PLUGIN/deploy.sh
 		cd $REPO_DIR/*$PLUGIN/
-		sh deploy.sh ${@:3}
+		bash deploy.sh ${@:3}
 		if [ "$?" -ne 0 ]; then
 			echo -e "\e[91mLe build de $PLUGIN a échoué !\e[0m"; exit 1
 		else
@@ -719,7 +719,7 @@ elif [ "$1" = "deployserv" ]; then
 			for element in $SERV_TO_UP
 			do
 				U=$(stat -c '%U' $SERVEUR_DIR/$element)
-				sh -c "cd $SERVEUR_DIR/$element; sh $STARTSH"
+				bash -c "cd $SERVEUR_DIR/$element; sh $STARTSH"
 			done
 			echo -e "\e[32m$SERV_TO_UP\e[0;32m a démarré\e[0m"
 		fi
