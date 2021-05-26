@@ -525,8 +525,8 @@ elif [ "$1" = "deploy" ]; then
 				echo -e "\e[91mLe serveur $element2 est fermé\e[0m"
 			fi
 		done
-		chmod 755 $REPO_DIR/olympa$PLUGIN/deploy.sh
-		cd $REPO_DIR/olympa$PLUGIN/
+		chmod 755 $REPO_DIR/*$PLUGIN/deploy.sh
+		cd $REPO_DIR/*$PLUGIN/
 		sh deploy.sh ${@:3}
 		if [ "$?" -ne 0 ]; then
 			echo -e "\e[91mLe build de $PLUGIN a échoué !\e[0m"; exit 1
