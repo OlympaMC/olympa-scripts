@@ -660,8 +660,8 @@ elif [ "$1" = "deployto" ]; then
 		done
 		for element in $SERVS
 		do
-			if [ -f "$REPO_DIR/*$PLUGIN/pom.xml" ]; then
-				cp $REPO_DIR/*$PLUGIN/target/Olympa*.jar $SERVEUR_DIR/$element/plugins/
+			if [ -f "$REPO_DIR/olympa$PLUGIN/pom.xml" ]; then
+				cp $REPO_DIR/olympa$PLUGIN/target/Olympa*.jar $SERVEUR_DIR/$element/plugins/
 			else
 				cp $REPO_DIR/olympa-$PLUGIN/build/Olympa*.jar $SERVEUR_DIR/$element/plugins/
 			fi
