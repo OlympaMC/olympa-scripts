@@ -508,6 +508,7 @@ elif [ "$1" = "deploy" ]; then
 			do
 				$0 deploy $element $BRANCH $SERVS
 			done
+			exit 0
 		elif [ -n "$4" ]; then
 			SERVS="${@:4}"
 		elif [ "$(cat $REPO_DIR/olympa$PLUGIN/for-server)" = "ALL" ]; then
@@ -525,9 +526,10 @@ elif [ "$1" = "deploy" ]; then
 				echo -e "\e[91mLe serveur $element2 est fermé\e[0m"
 			fi
 		done
-		chmod 755 $REPO_DIR/*$PLUGIN/deploy.sh
-		cd $REPO_DIR/*$PLUGIN/
-		bash deploy.sh ${@:3}
+		# chmod 755 $REPO_DIR/*$PLUGIN/deploy.sh
+		# //cd $REPO_DIR/*$PLUGIN/
+		# bash deploy.sh ${@:3}
+		bash /home/repo/deploy.sh ${@:2}
 		if [ "$?" -ne 0 ]; then
 			echo -e "\e[91mLe build de $PLUGIN a échoué !\e[0m"; exit 1
 		else
