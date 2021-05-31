@@ -500,9 +500,11 @@ elif [ "$1" = "deploy" ]; then
 		if [ "$PLUGIN" = "buildtools" ]; then
 			cd $REPO_DIR/$PLUGIN/ && bash start.sh
 			echo -e "\e[32mLe jar de dernière version de Spigot a été crée.\e[0m"
+			exit 0
 		elif [ "$PLUGIN" = "scripts" ]; then
 			cd $REPO_DIR/olympa$PLUGIN/ && bash deploy.sh
 			echo -e "\e[32mMise à jours des scripts de la machine effectué.\e[0m"
+			exit 0
 		elif [ "$PLUGIN" = "ALL" ]; then
 			for element in `ls $REPO_DIR`
 			do
@@ -530,13 +532,13 @@ elif [ "$1" = "deploy" ]; then
 		# //cd $REPO_DIR/*$PLUGIN/
 		# bash deploy.sh ${@:3}
 		bash /home/repo/deploy.sh ${@:2}
-		if [ "$?" -ne 0 ]; then
-			echo -e "\e[91mLe build de $PLUGIN a échoué !\e[0m"; exit 1
-		else
-			echo -e "\e[32mLe jar du $PLUGIN a été crée.\e[0m"
-			echo -e "\e[32mIl faut maintenant copier le jar sur le serveur.\e[0m"
-			echo "$0 deployto $PLUGIN $BRANCH $SERVS"
-		fi
+		#if [ "$?" -ne 0 ]; then
+		#	echo -e "\e[91mLe build de $PLUGIN a échoué !\e[0m"; exit 1
+		#else
+		#	echo -e "\e[32mLe jar du $PLUGIN a été crée.\e[0m"
+		#	echo -e "\e[32mIl faut maintenant copier le jar sur le serveur.\e[0m"
+		#	echo "$0 deployto $PLUGIN $BRANCH $SERVS"
+		#fi
 	else
 		for element in `ls $REPO_DIR`
 		do
