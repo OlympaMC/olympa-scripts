@@ -115,7 +115,6 @@ elif [ "$1" = "$START" ]; then
 		else
 			SERV="${*:2}"
 		fi
-		echo
 		for element in $SERV
 		do
 		if [ -d "$SERVEUR_DIR/$element" ]; then
@@ -182,7 +181,6 @@ elif [ "$1" = "$STOP" ]; then
 				serv_fermer+=" $element"
 			fi
 		done
-	echo
 	if [ -n "$serv_vafermerb" ]; then
 		for element in $serv_vafermerb
 		do
@@ -380,7 +378,6 @@ elif [ "$1" = "$RESTART" ]; then
 				serv_fermer+=" $element"
 			fi
 		done
-		echo
 		if [ -n "$serv_fermer" ]; then
 			echo -e "\e[31m$serv_fermer\e[0;31m n'est pas ouvert\e[0m"
 		fi
@@ -429,7 +426,6 @@ elif [ "$1" = "$RESTART" ]; then
 		read -p 'Quel(s) serveur(s) ? ' server_select
 		$0 $RESTART $server_select
 	fi
-	echo
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - MDP - - - - - - - - - - - - - - - - - - - - - - - - - -
 elif [ "$1" = "mdp" ]; then
 	length=${2:-50}
@@ -453,7 +449,6 @@ elif [ "$1" = "link" ]; then
 	
 	if [ -d "/home/serveurs/.other/link/$3" ]; then
 		mode="$3"
-		echo
 		read -p "Etes vous de vouloir link le serveur $2 en mode $mode ? (y/n)" yesorno
 		if [ $yesorno == 'y' ]; then
 			cp -lr $SERVEUR_DIR/.other/link/$mode/* $SERVEUR_DIR/$2/
@@ -707,7 +702,6 @@ elif [ "$1" = "deployserv" ]; then
 		else
 			SERV="${*:2}"
 		fi
-		echo
 		for element in $SERV
 		do
 		if [ -d "$SERVEUR_DIR/$element" ];then
