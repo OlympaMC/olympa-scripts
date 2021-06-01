@@ -497,7 +497,7 @@ elif [ "$1" = "deploy" ]; then
 			echo -e "\e[32mLe jar de dernière version de Spigot a été crée.\e[0m"
 			exit 0
 		elif [ "$PLUGIN" = "scripts" ]; then
-			cd $REPO_DIR/olympa$PLUGIN/ && bash deploy.sh
+			cd $REPO_DIR/olympa-$PLUGIN/ && bash deploy.sh
 			echo -e "\e[32mMise à jours des scripts de la machine effectué.\e[0m"
 			exit 0
 		elif [ "$PLUGIN" = "ALL" ]; then
@@ -508,12 +508,12 @@ elif [ "$1" = "deploy" ]; then
 			exit 0
 		elif [ -n "$4" ]; then
 			SERVS="${@:4}"
-		elif [ "$(cat $REPO_DIR/olympa$PLUGIN/for-server)" = "ALL" ]; then
+		elif [ "$(cat $REPO_DIR/olympa-$PLUGIN/for-server)" = "ALL" ]; then
 			SERVS=`ls $SERVEUR_DIR`
 		elif [[ $PLUGIN == olympa* ]]; then
 			SERVS=`cat $REPO_DIR/$PLUGIN/for-server`
 		else
-			SERVS=`cat $REPO_DIR/olympa$PLUGIN/for-server`
+			SERVS=`cat $REPO_DIR/olympa-$PLUGIN/for-server`
 		fi
 		for element2 in $SERVS
 		do
@@ -591,13 +591,13 @@ elif [ "$1" = "deployto" ]; then
 				SERVS="$(ls $SERVEUR_DIR)"
 			fi
 		else
-			if [ -f "$REPO_DIR/olympa$PLUGIN/for-server" ]; then
-				SERVS="$(cat $REPO_DIR/olympa$PLUGIN/for-server)"
+			if [ -f "$REPO_DIR/olympa-$PLUGIN/for-server" ]; then
+				SERVS="$(cat $REPO_DIR/olympa-$PLUGIN/for-server)"
 				if [ "$SERVS" = "ALL" ]; then
 					SERVS="$(ls $SERVEUR_DIR)"
 				fi
 			else
-				echo -e "\e[91m$REPO_DIR/olympa$PLUGIN/for-server n'existe pas, impossible de detecter sur quel(s) serveurs deploy le olympa$PLUGIN.\e[0m"
+				echo -e "\e[91m$REPO_DIR/olympa-$PLUGIN/for-server n'existe pas, impossible de detecter sur quel(s) serveurs deploy le olympa$PLUGIN.\e[0m"
 				exit 1
 			fi
 		fi
@@ -610,7 +610,7 @@ elif [ "$1" = "deployto" ]; then
 			fi
 			if [ `$0 isopen $element` -eq "1" ]; then
 				will_w8+=" $element"
-				screen -S $element -p 0 -X stuff "$COMMAND [{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},{\"text\":\"Le serveur va redémarrer dans $DEPLOYTO_SECOND_BEFORE_SHUTDOWN secondes afin de faire une mise à jour du Olympa$PLUGIN...\",\"color\":\"red\"}]^M"
+				screen -S $element -p 0 -X stuff "$COMMAND [{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},{\"text\":\"Le serveur $element va redémarrer dans $DEPLOYTO_SECOND_BEFORE_SHUTDOWN secondes afin de faire une mise à jour du Olympa$PLUGIN...\",\"color\":\"red\"}]^M"
 				echo -e "\e[32mLe serveur $element est ouvert, les joueurs ont été informés du redémarrage qui arrive dans $DEPLOYTO_SECOND_BEFORE_SHUTDOWN secondes.\e[0m"
 			else
 				echo -e "\e[91mLe serveur $element est fermé.\e[0m"
@@ -657,8 +657,8 @@ elif [ "$1" = "deployto" ]; then
 		done
 		for element in $SERVS
 		do
-			if [ -f "$REPO_DIR/olympa$PLUGIN/pom.xml" ]; then
-				cp $REPO_DIR/olympa$PLUGIN/target/Olympa*.jar $SERVEUR_DIR/$element/plugins/
+			if [ -f "$REPO_DIR/olympa-$PLUGIN/pom.xml" ]; then
+				cp $REPO_DIR/olympa-$PLUGIN/target/Olympa*.jar $SERVEUR_DIR/$element/plugins/
 			else
 				cp $REPO_DIR/olympa-$PLUGIN/build/Olympa*.jar $SERVEUR_DIR/$element/plugins/
 			fi
@@ -733,5 +733,5 @@ elif [ "$1" = "redis" ]; then
 	redis-cli -a 1rWS1Fmj7s4snEDCQgw3Mcznf8ShfrLZpPkKtstu5coV9PpDI1
 #- - - - - - - - - - - - - - - - - - - - - - - - - - USAGE - - - - - - - - - - - - - - - - - - - - - - - - - -
 else
-	echo -e "\e[31m'${*:0}' Unknow\nUSAGE\e[0m"
+	echo -e "\e[31m'${*:0}' Unknow\n$USAGE\e[0m"
 fi
