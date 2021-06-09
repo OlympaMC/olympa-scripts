@@ -31,7 +31,7 @@ DATE_DAY="$(date +"%j")"
 SERVEUR_DIR="/home/serveurs"
 
 # Commande en cas d'erreur ou d'arguments non d?nie
-USAGE="Usage: \e[0;36m$(basename "$0") $START|$STOP|$SEE|$BACKUP|$RESTART ALL|<$(ls $SERVEUR_DIR)>\n\e[0;36m$(basename "$0") deploy|deployto|autodeploy dev|master ALL|$(ls $SERVEUR_DIR)\n\e[0;36m$(basename "$0") unban <ip>\e[0;36m\n$(basename "$0") backupbdd|backupserv \e[0m"
+USAGE="\e[0;36mUsage >\n$(basename "$0") $START|$STOP|$RESTART ALL|<server>\n$(basename "$0") $SEE <server> -t\n$(basename "$0") deploy|deployto|autodeploy dev|master ALL|<server>\n$(basename "$0") unban <ip>\e[0;36m\n$(basename "$0") $BACKUP\n$(basename "$0") backupbdd|backupserv\nTous les serveurs : $(ls $SERVEUR_DIR)\e[0m"
 
 # Nom des script qui lance le serveur (qui lance le .jar). Par default start.sh
 STARTSH="start.sh"
@@ -52,7 +52,7 @@ spigot_file="paperclip.jar"
 bungee_file="Waterfall.jar"
 
 # Nom de l'utilisateur avec lequel les serveurs se lance. Par default root
-USER="minecraft"
+USER_EXE="minecraft"
 
 # Serveurs:
 # ALL="$(ls $SERVEUR_DIR)"
@@ -89,24 +89,44 @@ if [ "$1" = "unban" ]; then
 	else
 		echo -e "\e[35mUsage\e[0;35m $0 unban <ip>\e[0m"
 	fi
-#- - - - - - - - - - - - - - - - - - - - - - - - - - IS OPEN - - - - - - - - - - - - - - - - - - - - - - - - - -
-elif [ "$1" = "isopen" ]; then
+	exit $?
+fi
 
-	#U=$(stat -c '%U' $SERVEUR_DIR/$2)
-	#if [ "$?" -ne 0 ]; then
-		U=$USER
-	#fi
+if [ $USER != $USER_EXE ]; then
+	sudo -u $USER_EXE mc ${*:1}
+	exit $?
+fi
+
+#- - - - - - - - - - - - - - - - - - - - - - - - - - IS OPEN - - - - - - - - - - - - - - - - - - - - - - - - - -
+if [ "$1" = "isopen" ]; then
 	if [ -n "$2" ]; then
-		if [ `ls /run/screen/S-$U | grep -w $2 | wc -l` -eq "0" ]; then
-			echo "0"
-		else
+		#U=$(stat -c '%U' $SERVEUR_DIR/$2)
+		if [ `ls /run/screen/S-$USER_EXE | grep -w $2 | wc -l` -eq "1" ]; then
+		#if [ `sudo -u $USER_EXE ls /run/screen/S-$USER_EXE | grep -w $2 | wc -l` -eq "1" ]; then
 			serv_ouvert+=" $element"
 			echo "1"
+		else
+			echo "0"
 		fi
 	else
-		echo "-1"
+		echo "0"
 	fi
-
+#- - - - - - - - - - - - - - - - - - - - - - - - - - OPEN - - - - - - - - - - - - - - - - - - - - - - - - - -
+elif [ "$1" = "open" ]; then
+	for element in `ls $SERVEUR_DIR`
+	do
+		if [ `mc isopen $element` -eq "1" ]; then
+			serv_ouvert+=" $element"
+		else
+			serv_fermer+=" $element"
+		fi
+	done
+	if [ -n "$serv_ouvert" ]; then
+		echo -e "\e[0;36mOUVERT > \e[36m$serv_ouvert\e[0m"
+	fi
+	if [ -n "$serv_fermer" ]; then
+		echo -e "\e[0;31mFERMER > \e[31m$serv_fermer\e[0m"
+	fi
 #- - - - - - - - - - - - - - - - - - - - - - - - - - START - - - - - - - - - - - - - - - - - - - - - - - - - -
 elif [ "$1" = "$START" ]; then
 	if [ -n "$2" ]; then
@@ -118,43 +138,33 @@ elif [ "$1" = "$START" ]; then
 		for element in $SERV
 		do
 		if [ -d "$SERVEUR_DIR/$element" ]; then
-			U=$(stat -c '%U' $SERVEUR_DIR/$element)
-			# if [ -f "$SERVEUR_DIR/$element/$STARTSH" ];then
-				if [ `ls /run/screen/S-$U | grep -w $element | wc -l` -eq "0" ]; then
-					serv_lance+=" $element"
-				else
-					serv_ouvert+=" $element"
-				fi
-			# else
-				# serv_script+=" $element"
-			# fi
+			if [ `mc isopen $element` -eq "0" ]; then
+				serv_lance+=" $element"
+			else
+				serv_ouvert+=" $element"
+			fi
 		else
 			serv_dossier+=" $element"
 		fi
 		done
 		if [ "$element" = "omega" ]; then
 			bash -c "cd /home/omega; bash $STARTSH"
-			echo -e "\e[32m$element\e[0;32m a démarré\e[0m"
+			echo -e "\e[32m$element\e[0;32m démarre\e[0m"
 		else 
 			if [ -n "$serv_dossier" ]; then
 				echo -e "\e[31m$serv_dossier\e[0;31m n'existe pas (dossier $SERVEUR_DIR/nom du serveur)\e[0m"
 			fi
-			# if [ -n "$serv_script" ]; then	
-				# echo -e "\e[35m$serv_script\e[0;35m n'existe pas (fichier $STARTSH)\e[0m"
-			# fi
 			if [ -n "$serv_ouvert" ]; then
 				echo -e "\e[36m$serv_ouvert\e[0;36m est déjà ouvert\e[0m"
 			fi
 			if [ -n "$serv_lance" ]; then
 				for element in $serv_lance
 				do
-					U=$(stat -c '%U' $SERVEUR_DIR/$element)
 					bash -c "cd $SERVEUR_DIR/$element; bash $STARTSH"
 				done
-				echo -e "\e[32m$serv_lance\e[0;32m a démarré\e[0m"
+				echo -e "\e[32m$serv_lance\e[0;32m démarre\e[0m"
 			fi
 		fi
-		
 	else
 		read -p 'Quel(s) serveur(s) ? ' server_select
 		$0 $START $server_select
@@ -169,9 +179,7 @@ elif [ "$1" = "$STOP" ]; then
 		fi
 		for element in $SERV
 		do
-			#U=$(stat -c '%U' $SERVEUR_DIR/$element)
-			U=$USER
-			if [ `ls /run/screen/S-$U | grep -w $element | wc -l` -eq "1" ]; then
+			if [ `mc isopen $element` -eq "1" ]; then
 				if [[ $element == bungee* ]]; then
 					serv_vafermerb+=" $element"
 				else
@@ -184,13 +192,7 @@ elif [ "$1" = "$STOP" ]; then
 	if [ -n "$serv_vafermerb" ]; then
 		for element in $serv_vafermerb
 		do
-			#U=$(stat -c '%U' $SERVEUR_DIR/$element)
-			U=$USER
-			if [ $U != $USER ]; then
-				su -m $U -c "screen -S $element -X stuff 'end\r'"
-			else
-				screen -S $element -X stuff 'end\r'
-			fi
+			screen -S $element -X stuff 'end\r'
 		done
 		echo -e "\e[36m$serv_vafermerb\e[0;36m s'est arrêté (BUNGEE)\e[0m"
 		
@@ -198,7 +200,6 @@ elif [ "$1" = "$STOP" ]; then
 	if [ -n "$serv_vafermer" ]; then
 		for element in $serv_vafermer
 		do
-			U=$(stat -c '%U' $SERVEUR_DIR/$element)
 			screen -S $element -X stuff 'stop\r'
 		done
 		echo -e "\e[36m$serv_vafermer\e[0;36m s'est arrêté \e[0m"
@@ -228,7 +229,7 @@ elif [ "$1" = "$BACKUP" ]; then
 	for element in `ls $SERVEUR_DIR`
 	do
 		find "$SERVEUR_DIR/$element/logs/" -type f -mtime +1 -exec rm {} \;
-		if [ `ls /run/screen/S-$USER | grep -w $element | wc -l` -eq "1" ]; then
+		if [ `mc isopen $element` -eq "1" ]; then
 			serv_allumer+=" $element"
 		fi
 	done
@@ -297,7 +298,7 @@ elif [ "$1" = "$BACKUP" ]; then
 			serv_allumer2=""
 			for element in $serv_allumer
 			do
-				if [ `ls /run/screen/S-$USER | grep -w $element | wc -l` -eq "1" ]; then
+				if [ `mc isopen $element` -eq "1" ]; then
 					serv_allumer2+=" $element"
 				fi
 			done
@@ -313,8 +314,7 @@ elif [ "$1" = "$BACKUP" ]; then
 		done
 		for element in `ls $SERVEUR_DIR`
 		do
-			if [ `ls /run/screen/S-$USER | grep -w $element | wc -l` -eq "1" ]; then
-				U=$(stat -c '%U' $SERVEUR_DIR/$element)
+			if [ `mc isopen $element` -eq "1" ]; then
 				screen -X -S $element kill
 				echo -e "\e[91m$element a été fermer de force.\e[0m"
 			fi
@@ -372,7 +372,7 @@ elif [ "$1" = "$RESTART" ]; then
 		fi
 		for element in $SERV
 		do
-			if [ `ls /run/screen/S-$USER | grep -w $element | wc -l` -eq "1" ]; then
+			if [ `mc isopen $element` -eq "1" ]; then
 				serv_vafermer+=" $element"
 			else
 				serv_fermer+=" $element"
@@ -382,11 +382,12 @@ elif [ "$1" = "$RESTART" ]; then
 			echo -e "\e[31m$serv_fermer\e[0;31m n'est pas ouvert\e[0m"
 		fi
 		if [ -n "$serv_vafermer" ]; then
+			echo -e "\e[36m$serv_vafermer\e[0;36m va redémarrer\e[0m"
 			$0 $STOP $serv_vafermer
 			# ----
 			for element in $serv_vafermer
 			do
-				if [ `ls /run/screen/S-$USER | grep -w $element | wc -l` -eq "1" ]; then
+				if [ `mc isopen $element` -eq "1" ]; then
 					serv_allumer+=" $element"
 				fi
 			done
@@ -398,7 +399,7 @@ elif [ "$1" = "$RESTART" ]; then
 				serv_allumer2=""
 				for element in $serv_allumer
 				do
-					if [ `ls /run/screen/S-$USER | grep -w $element | wc -l` -eq "1" ]; then
+					if [ `mc isopen $element` -eq "1" ]; then
 						serv_allumer2+=" $element"
 					fi
 				done
@@ -414,13 +415,12 @@ elif [ "$1" = "$RESTART" ]; then
 			done
 			for element in $serv_vafermer
 			do
-				if [ `ls /run/screen/S-$USER | grep -w $element | wc -l` -eq "1" ]; then
+				if [ `mc isopen $element` -eq "1" ]; then
 					screen -X -S $element kill
 					echo -e "\e[91m$element a été fermer de force.\e[0m"
 				fi
 			done
 			$0 $START $serv_vafermer
-			echo -e "\e[36m$serv_vafermer\e[0;36m s'est redémarrer \e[0m"
 		fi
 	else
 		read -p 'Quel(s) serveur(s) ? ' server_select
@@ -465,15 +465,18 @@ elif [ "$1" = "link" ]; then
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - SEE - - - - - - - - - - - - - - - - - - - - - - - - - -
 elif [ "$1" = "$SEE" ]; then
 	if [ -n "$2" ]; then
-		U=$(stat -c '%U' $SERVEUR_DIR/$2)
-		i=1;
-		while [ "$i" -lt "100000" ]
-		do
-			echo "Tentative $i de regarder la console sur le serveur $2"
-			screen -x "${*:2}"
-			sleep 1
-			let "i = i + 1"
-		done
+		if [ -n "$3" ] && [ "-t" == "$3" ]; then
+			i=1;
+			while [ "$i" -lt "100000" ]
+			do
+				echo -e "\e[91mTentative $i de regarder la console sur le serveur $2. CTRL + C pour quitter.\e[0m"
+				screen -x $2
+				sleep 1
+				let "i = i + 1"
+			done
+		else
+			screen -x $2
+		fi
 	fi
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - deploy - - - - - - - - - - - - - - - - - - - - - - - - - -
 elif [ "$1" = "deploy" ]; then
@@ -622,7 +625,7 @@ elif [ "$1" = "deployto" ]; then
 		fi
 		for element in $SERVS
 		do
-			if [ `ls /run/screen/S-$USER | grep -w $element | wc -l` -eq "1" ]; then
+			if [ `mc isopen $element` -eq "1" ]; then
 				serv_allumer+=" $element"
 			fi
 		done
@@ -634,7 +637,7 @@ elif [ "$1" = "deployto" ]; then
 			serv_allumer2=""
 			for element in $serv_allumer
 			do
-				if [ `ls /run/screen/S-$USER | grep -w $element | wc -l` -eq "1" ]; then
+				if [ `mc isopen $element` -eq "1" ]; then
 					serv_allumer2+=" $element"
 				fi
 			done
@@ -650,7 +653,7 @@ elif [ "$1" = "deployto" ]; then
 		done
 		for element in $SERVS
 		do
-			if [ `ls /run/screen/S-$USER | grep -w $element | wc -l` -eq "1" ]; then
+			if [ `mc isopen $element` -eq "1" ]; then
 				screen -X -S $element kill
 				echo -e "\e[91m$element a été fermer de force.\e[0m"
 			fi
@@ -716,7 +719,6 @@ elif [ "$1" = "deployserv" ]; then
 		if [ -n "$SERV_TO_UP" ]; then
 			for element in $SERV_TO_UP
 			do
-				U=$(stat -c '%U' $SERVEUR_DIR/$element)
 				bash -c "cd $SERVEUR_DIR/$element; sh $STARTSH"
 			done
 			echo -e "\e[32m$SERV_TO_UP\e[0;32m a démarré\e[0m"
