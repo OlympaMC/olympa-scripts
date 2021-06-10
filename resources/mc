@@ -529,7 +529,7 @@ elif [ "$1" = "deploy" ]; then
 		# chmod 755 $REPO_DIR/*$PLUGIN/deploy.sh
 		# //cd $REPO_DIR/*$PLUGIN/
 		# bash deploy.sh ${@:3}
-		bash /home/repo/deploy.sh ${@:2}
+		deploy ${@:2}
 		#if [ "$?" -ne 0 ]; then
 		#	echo -e "\e[91mLe build de $PLUGIN a échoué !\e[0m"; exit 1
 		#else
