@@ -1,11 +1,12 @@
+#!/bin/bash
 ##   ____  _
 ##  / __ \| |
 ## | |  | | |_   _ _ __ ___  _ __   __ _
 ## | |  | | | | | | '_ ` _ \| '_ \ / _` |
 ## | |__| | | |_| | | | | | | |_) | (_| |
 ##  \____/|_|\__, |_| |_| |_| .__/ \__,_|
-##            __/ |         | |
-##           |___/          |_|
+##			__/ |		 | |
+##		   |___/		  |_|
 ##
 ## Install all requirement and add default value to OS. Use it only at once.
 ## Need to be run as root
