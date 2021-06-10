@@ -49,6 +49,8 @@ else
 			bash $0 core dev justGitPull
 		elif [ $PLUGIN_NAME == "pvpkit" ]; then
 			bash $0 core dev justGitPull
+		elif [ $PLUGIN_NAME == "bungee" ]; then
+			bash $0 core dev justGitPull
 		fi
 		cd $PLUGIN_DIR
 		if [ "$?" -ne 0 ]; then
@@ -85,9 +87,11 @@ else
 			mvn clean install
 		else
 			if [ $PLUGIN_NAME == "core" ] || [ $PLUGIN_NAME == "api" ]; then
-				gradle publishToMavenLocal
+				./gradlew publishToMavenLocal
+			elif [ $PLUGIN_NAME == "core" ] || [ $PLUGIN_NAME == "api" ]; then
+			
 			else
-				gradle jar
+				./gradlew jar
 			fi
 		fi
 	fi
