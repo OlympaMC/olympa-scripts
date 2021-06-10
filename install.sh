@@ -17,6 +17,5 @@ apt install portsentry fail2ban mariadb-server default-jre default-jdk webhook s
 
 chmod 755 resources/firewall
 chmod 755 resources/mc
-ln -s resources/firewall /bin/
-ln -s resources/mc /bin/
-ln -s resources/firewall /bin/
+ln -s $(pwd)/resources/firewall /bin/
+ln -s $(pwd)/resources/mc /bin/
