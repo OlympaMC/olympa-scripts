@@ -88,8 +88,8 @@ else
 		else
 			if [ $PLUGIN_NAME == "core" ] || [ $PLUGIN_NAME == "api" ]; then
 				./gradlew publishToMavenLocal
-			elif [ $PLUGIN_NAME == "core" ] || [ $PLUGIN_NAME == "api" ]; then
-			
+			elif [ $PLUGIN_NAME == "bot" ]; then
+				./gradlew shadowJar
 			else
 				./gradlew jar
 			fi
