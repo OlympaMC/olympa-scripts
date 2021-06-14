@@ -503,6 +503,10 @@ elif [ "$1" = "deploy" ]; then
 			cd $REPO_DIR/olympa-$PLUGIN/ && bash deploy.sh
 			echo -e "\e[32mMise à jours des scripts de la machine effectué.\e[0m"
 			exit 0
+		elif [ "$PLUGIN" = "linkbotmc" ]; then
+			cd $REPO_DIR/linkbotmc/ && bash start.sh
+			echo -e "\e[32mMise à jours de linkbotmc effectué. Redémarrage effectué\e[0m"
+			exit 0
 		elif [ "$PLUGIN" = "ALL" ]; then
 			for element in `ls $REPO_DIR`
 			do
@@ -585,9 +589,11 @@ elif [ "$1" = "deployto" ]; then
 		elif [ "$PLUGIN" = "scripts" ]; then
 			echo -e "\e[0;36mInutile de deployTo les scripts.\e[0m"
 			exit 0
-
 		elif [ "$PLUGIN" = "manager" ]; then
 			echo -e "\e[0;36mInutile de deployTo le bot. Restart effectué.\e[0m"
+			exit 0
+		elif [ "$PLUGIN" = "linkbotmc" ]; then
+			echo -e "\e[0;36mInutile de deployTo le bot linkbotmc.\e[0m"
 			exit 0
 		elif [ -n "$SERVS" ]; then
 			if [ "$SERVS" = "ALL" ]; then
