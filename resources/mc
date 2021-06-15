@@ -39,16 +39,14 @@ STARTSH="start.sh"
 REPO_DIR="/home/repo"
 
 VERSION="1.16.5"
-VERSION_WATERFALL="1.16"
+VERSION_WATERFALL="1.17"
 
 PAPER_API_VERSION="https://purpur.pl3x.net/api/v1/purpur/$VERSION/latest"
 PAPER_API_DOWNLOAD="$PAPER_API_VERSION/download"
 WATERFALL_API_VERSION="https://papermc.io/api/v1/waterfall/$VERSION_WATERFALL/latest"
 WATERFALL_API_DOWNLOAD="$WATERFALL_API_VERSION/download"
 
-# spigot_jenkins="https://papermc.io/ci/job/Paper-1.16"
 spigot_file="paperclip.jar"
-# bungee_jenkins="https://papermc.io/ci/job/Waterfall"
 bungee_file="Waterfall.jar"
 
 # Nom de l'utilisateur avec lequel les serveurs se lance. Par default root
@@ -212,6 +210,46 @@ elif [ "$1" = "$STOP" ]; then
 		read -p 'Quel(s) serveur(s) ? ' server_select
 		$0 $STOP $server_select
 	fi
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - SPIGOT MAJ - - - - - - - - - - - - - - - - - - - - - - - - - -
+elif [ "$1" = "spigotmaj" ]; then
+	echo -e "\e[92mRécupération de la dernière MAJ de Purpur...\e[0m"
+	old_build_id=`cat paperspigot_build_id.txt`
+	build_id=`wget -qO- $PAPER_API_VERSION | jq -r '.build'`
+	if [ -z $old_build_id ] || [ "$build_id" -gt $old_build_id ]; then
+		echo -e "\e[92mMise à jour des Purpur...\e[0m"
+		rm $spigot_file
+		wget -O $spigot_file $PAPER_API_DOWNLOAD
+		echo $build_id > paperspigot_build_id.txt
+		for element in `ls $SERVEUR_DIR`
+		do
+			if [[ $element != bungee* ]]; then
+				rm $SERVEUR_DIR/$element/$spigot_file
+				cp $spigot_file $SERVEUR_DIR/$element
+			fi
+		done
+	else
+		echo -e "\e[92mMAJ Paperspigot pas nécessaire\e[0m"
+	fi
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - BUNGEE MAJ - - - - - - - - - - - - - - - - - - - - - - - - - -
+elif [ "$1" = "bungeemaj" ]; then
+	echo -e "\e[92mRécupération de la dernière MAJ de WaterFall...\e[0m"
+	old_build_id=`cat bungee_build_id.txt`
+	build_id=`wget -qO- $WATERFALL_API_VERSION | jq -r '.build'`
+	if [ -z $old_build_id ] || [ "$build_id" -gt $old_build_id ]; then
+		echo -e "\e[92mMise à jour du WaterFall...\e[0m"
+		rm $bungee_file
+		wget -O $bungee_file $WATERFALL_API_DOWNLOAD
+		echo $build_id > bungee_build_id.txt
+		for element in `ls $SERVEUR_DIR`
+		do
+			if [[ $element == bungee* ]]; then
+				rm $SERVEUR_DIR/$element/$bungee_file
+				cp $bungee_file $SERVEUR_DIR/$element
+			fi
+		done
+	else
+		echo -e "\e[92mMAJ bungee pas nécessaire\e[0m"
+	fi
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - BACKUP - - - - - - - - - - - - - - - - - - - - - - - - - -
 elif [ "$1" = "backupserv" ]; then
 	echo -e "\e[32mCréation de la backup des serveurs...\e[0m"
@@ -322,43 +360,8 @@ elif [ "$1" = "$BACKUP" ]; then
 	fi
 	$0 backupserv
 	$0 backupbdd
-
-	echo -e "\e[92mRécupération de la dernière MAJ de Paperspigot...\e[0m"
-	old_build_id=`cat paperspigot_build_id.txt`
-	build_id=`wget -qO- $PAPER_API_VERSION | jq -r '.build'`
-	if [ -z $old_build_id ] || [ "$build_id" -gt $old_build_id ]; then
-		echo -e "\e[92mMise à jour des PaperSpigot...\e[0m"
-		rm $spigot_file
-		wget -O $spigot_file $PAPER_API_DOWNLOAD
-		echo $build_id > paperspigot_build_id.txt
-		for element in `ls $SERVEUR_DIR`
-		do
-			if [[ $element != bungee* ]]; then
-				rm $SERVEUR_DIR/$element/$spigot_file
-				cp $spigot_file $SERVEUR_DIR/$element
-			fi
-		done
-	else
-		echo -e "\e[92mMAJ Paperspigot pas nécessaire\e[0m"
-	fi
-	echo -e "\e[92mRécupération de la dernière MAJ de WaterFall...\e[0m"
-	old_build_id=`cat bungee_build_id.txt`
-	build_id=`wget -qO- $WATERFALL_API_VERSION | jq -r '.build'`
-	if [ -z $old_build_id ] || [ "$build_id" -gt $old_build_id ]; then
-		echo -e "\e[92mMise à jour du WaterFall...\e[0m"
-		rm $bungee_file
-		wget -O $bungee_file $WATERFALL_API_DOWNLOAD
-		echo $build_id > bungee_build_id.txt
-		for element in `ls $SERVEUR_DIR`
-		do
-			if [[ $element == bungee* ]]; then
-				rm $SERVEUR_DIR/$element/$bungee_file
-				cp $bungee_file $SERVEUR_DIR/$element
-			fi
-		done
-	else
-		echo -e "\e[92mMAJ bungee pas nécessaire\e[0m"
-	fi
+	$0 spigotmaj
+	$0 bungeemaj
 	echo -e "\e[92mRéouverture de tous les serveurs...\e[0m"
 	$0 $START all
 	echo -e "\e[32mTous est parfait, les serveurs se lancent !\e[0m"
