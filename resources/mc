@@ -292,7 +292,7 @@ elif [ "$1" = "$BACKUP" ]; then
 		
 		serv_allumer2="open"
 		i=0
-		while [ "$serv_allumer2" != "" ] && [ "$i" -lt "60" ]
+		while [ "$serv_allumer2" != "" ] && [ "$i" -lt 12 ]
 		do
 			sleep 1
 			serv_allumer2=""
@@ -393,7 +393,7 @@ elif [ "$1" = "$RESTART" ]; then
 			done
 			serv_allumer2="open"
 			i=0
-			while [ "$serv_allumer2" != "" ] && [ "$i" -lt "60" ]
+			while [ "$serv_allumer2" != "" ] && [ "$i" -lt 12 ]
 			do
 				sleep 5
 				serv_allumer2=""
@@ -637,7 +637,7 @@ elif [ "$1" = "deployto" ]; then
 		done
 		serv_allumer2="open"
 		i=0
-		while [ "$serv_allumer2" != "" ] && [ "$i" -lt "60" ]
+		while [ "$serv_allumer2" != "" ] && [ "$i" -lt 12 ]
 		do
 			sleep 5
 			serv_allumer2=""
