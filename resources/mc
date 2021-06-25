@@ -54,7 +54,7 @@ USER_EXE="minecraft"
 
 # Serveurs:
 # ALL="$(ls $SERVEUR_DIR)"
-ALL="bungee1 lobby1 zta1 creatif1"
+ALL="bungee1 lobby1 zta1 creatif1 pvpkit1"
 
 # Backup mysql
 BDD_USER="root"
@@ -225,6 +225,7 @@ elif [ "$1" = "spigotmaj" ]; then
 			if [[ $element != bungee* ]]; then
 				rm $SERVEUR_DIR/$element/$spigot_file
 				cp $spigot_file $SERVEUR_DIR/$element
+				echo -e "\e[92mPurpur a été maj sur $element\e[0m"
 			fi
 		done
 	else
@@ -245,6 +246,7 @@ elif [ "$1" = "bungeemaj" ]; then
 			if [[ $element == bungee* ]]; then
 				rm $SERVEUR_DIR/$element/$bungee_file
 				cp $bungee_file $SERVEUR_DIR/$element
+				echo -e "\e[92mWaterFall a été maj sur $element\e[0m"
 			fi
 		done
 	else
@@ -495,7 +497,7 @@ elif [ "$1" = "deploy" ]; then
 	fi
 	if [[ `cd $SERVEUR_DIR` == *"$BRANCH"* ]]; then
 		echo -e "\e[91m$BRANCH doit être une branch valide tel que master ou dev.\e[0m"
-		exit 0;
+		exit 1;
 	fi
 	if [ -n "$PLUGIN" ]; then
 		if [ "$PLUGIN" = "buildtools" ]; then
