@@ -36,43 +36,5 @@
         }
       }
     }
-  },
-  {
-    "id": "linkbotmc",
-    "execute-command": "/bin/mc",
-    "command-working-directory": "/home",
-    "pass-arguments-to-command":
-    [
-      {
-        "source": "string",
-        "name": "autodeploy"
-      },
-      {
-        "source": "string",
-        "name": "linkbotmc"
-      },
-      {
-        "source": "payload",
-        "name": "ref",
-      },
-      {
-        "source": "url",
-        "name": "server"
-      }
-    ],
-    "response-message": "Executing redeploy script",
-    "trigger-rule":
-    {
-      "match":
-      {
-        "type": "value",
-        "value": "idb1k6yqhug4xntfrjvqgwhaevahao6gkh6sy69rr9cto8bksc",
-        "parameter":
-        {
-          "source": "header",
-          "name": "X-Gitlab-Token"
-        }
-      }
-    }
   }
 ]
