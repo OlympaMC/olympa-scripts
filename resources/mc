@@ -356,7 +356,7 @@ elif [ "$1" = "$BACKUP" ]; then
 		do
 			if [ `mc isopen $element` -eq "1" ]; then
 				#screen -X -S $element kill
-				kill -SIGKILL `screen -ls | awk '/\.nameofscreen\t/ {print strtonum($1)}'`
+				kill -SIGKILL `screen -ls | awk '/\.$element\t/ {print strtonum($1)}'`
 				echo -e "\e[91m$element a été fermer de force.\e[0m"
 			fi
 		done
@@ -423,7 +423,7 @@ elif [ "$1" = "$RESTART" ]; then
 			do
 				if [ `mc isopen $element` -eq "1" ]; then
 					#screen -X -S $element kill
-					kill -SIGKILL `screen -ls | awk '/\.nameofscreen\t/ {print strtonum($1)}'`
+					kill -SIGKILL `screen -ls | awk '/\.$element\t/ {print strtonum($1)}'`
 					echo -e "\e[91m$element a été fermer de force.\e[0m"
 				fi
 			done
@@ -668,7 +668,7 @@ elif [ "$1" = "deployto" ]; then
 		do
 			if [ `mc isopen $element` -eq "1" ]; then
 				#screen -X -S $element kill
-				kill -SIGKILL `screen -ls | awk '/\.nameofscreen\t/ {print strtonum($1)}'`
+				kill -SIGKILL `screen -ls | awk '/\.$element\t/ {print strtonum($1)}'`
 				echo -e "\e[91m$element a été fermer de force.\e[0m"
 			fi
 		done
