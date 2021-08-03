@@ -741,6 +741,15 @@ elif [ "$1" = "deployserv" ]; then
 		read -p 'Quel(s) serveur(s) ? ' server_select
 		$0 $START $server_select
 	fi
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - LOG - - - - - - - - - - - - - - - - - - - - - - - - - -
+elif [ "$1" = "log" ]; then
+	cd $SERVEUR_DIR/$2/logs
+	if [ -n "$3" ]; then
+		gunzip $3.log.gz && cat $3.log | more && gzip $3.log
+	else
+		echo "choose logs" 
+		ls
+	fi
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - TS - - - - - - - - - - - - - - - - - - - - - - - - - -
 elif [ "$1" = "ts" ]; then
 	telnet 172.0.0.1 10011

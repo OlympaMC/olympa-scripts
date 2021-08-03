@@ -1,0 +1,216 @@
+#!/bin/bash
+##   ____  _
+##  / __ \| |
+## | |  | | |_   _ _ __ ___  _ __   __ _
+## | |  | | | | | | '_ ` _ \| '_ \ / _` |
+## | |__| | | |_| | | | | | | |_) | (_| |
+##  \____/|_|\__, |_| |_| |_| .__/ \__,_|
+##			__/ |		 | |
+##		   |___/		  |_|
+##
+## Script to handler Minecraft servers
+## Author > Tristiisch
+
+# PARAMETRE
+
+# Commandes
+START="start"
+STOP="stop"
+SEE="see"
+BACKUP="backup"
+RESTART="restart"
+SSH="ssh"
+
+
+
+# Format de la date 
+DATE="$(date +"%a %d %b %Y %H:%M")"
+DATE_DAY="$(date +"%j")"
+
+# Dossier des serveurs (dossier qui contient les dossiers qui contiennent les fichiers du serveur). Il est recommand?e cr?un dossier dans /home tel que /home/<nom de votre network> pour y mettre tous les autres serveurs.
+SERVEUR_DIR="/home/serveurs"
+
+# Commande en cas d'erreur ou d'arguments non d?nie
+USAGE="\e[0;36mUsage >\n$(basename "$0") $START|$STOP|$RESTART ALL|<server>\n$(basename "$0") $SEE <server> -t\n$(basename "$0") deploy|deployto|autodeploy dev|master ALL|<server>\n$(basename "$0") unban <ip>\e[0;36m\n$(basename "$0") $BACKUP\n$(basename "$0") backupbdd|backupserv\nTous les serveurs : $(ls $SERVEUR_DIR)\e[0m"
+
+# Nom des script qui lance le serveur (qui lance le .jar). Par default start.sh
+STARTSH="start.sh"
+
+REPO_DIR="/home/repo"
+
+VERSION="1.16.5"
+VERSION_WATERFALL="1.17"
+
+PAPER_API_VERSION="https://purpur.pl3x.net/api/v1/purpur/$VERSION/latest"
+PAPER_API_DOWNLOAD="$PAPER_API_VERSION/download"
+WATERFALL_API_VERSION="https://papermc.io/api/v1/waterfall/$VERSION_WATERFALL/latest"
+WATERFALL_API_DOWNLOAD="$WATERFALL_API_VERSION/download"
+
+spigot_file="paperclip.jar"
+bungee_file="Waterfall.jar"
+
+# Nom de l'utilisateur avec lequel les serveurs se lance. Par default root
+USER_EXE="minecraft"
+
+# Serveurs:
+# ALL="$(ls $SERVEUR_DIR)"
+ALL="bungee1 lobby1 zta1 creatif1"
+
+# Backup mysql
+BDD_USER="root"
+BDD_PASSWORD="deMmeROCIR1iSGdng0RY_P_aleCQ5n3g12fSSe8iUry4_BmZcy"
+BDD_HOST="localhost"
+
+BACKUP_DIR="/home/.backup"
+
+# FTP sauvegarde ################################
+# IP (chiffr?u dns) du ftp
+FTP_HOST=""
+# Port du ftp (default 21)
+FTP_PORT="21"
+# Nom d'utiliser du compte ftp
+FTP_USER=""
+# Mdp du compte ftp
+FTP_PASSWORD=""
+# Dossier des backups sur le ftp
+FTP_DIR="/serveurs/"
+
+DEPLOYTO_SECOND_BEFORE_SHUTDOWN="10"
+
+#- - - - - - - - - - - - - - - - - - - - - - - - - - UNBAN IP - - - - - - - - - - - - - - - - - - - - - - - - - -
+if [ "$1" = "unban" ]; then
+	if [ -n "$2" ]; then
+		route del "$2" reject
+		fail2ban-client set sshd unbanip $2
+		fail2ban-client set mysqld-auth unbanip $2
+		sed -i '/$2/d' /etc/hosts.deny
+	else
+		echo -e "\e[35mUsage\e[0;35m $0 unban <ip>\e[0m"
+	fi
+	exit $?
+fi
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - BACKUP - - - - - - - - - - - - - - - - - - - - - - - - - -
+elif [ "$1" = "backupserv" ]; then
+	echo -e "\e[32mCréation de la backup des serveurs...\e[0m"
+	tar -c $SERVEUR_DIR | pv -s $(du -sb $SERVEUR_DIR | awk '{print $1}') > "$BACKUP_DIR/$DATE_DAY | serveurs.tar"
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - BACKUP - - - - - - - - - - - - - - - - - - - - - - - - - -
+elif [ "$1" = "backupbdd" ]; then
+	echo -e "\e[32mCréation de la backup bdd ...\e[0m"
+	SIZE_BYTES=$(mysql --skip-column-names -h $BDD_HOST -u $BDD_USER -p$BDD_PASSWORD <<< 'SELECT SUM(data_length) AS "size_bytes" FROM information_schema.TABLES;')
+	mysqldump -h $BDD_HOST -u $BDD_USER -p$BDD_PASSWORD -A -x | pv --progress --size $SIZE_BYTES > "$BACKUP_DIR/$DATE_DAY | databases.sql"
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - BACKUP - - - - - - - - - - - - - - - - - - - - - - - - - -
+elif [ "$1" = "$BACKUP" ]; then
+	find "$BACKUP_DIR/" -type f -mtime +0 -exec rm {} \;
+	# find "/home/.backup/" -type f -mtime +1 -exec rm {} \;
+	echo -e "\e[94mSuppression des backups de + de 2 jours effectué."
+	for element in `ls $SERVEUR_DIR`
+	do
+		find "$SERVEUR_DIR/$element/logs/" -type f -mtime +1 -exec rm {} \;
+		if [ `mc isopen $element` -eq "1" ]; then
+			serv_allumer+=" $element"
+		fi
+	done
+	echo -e "\e[94mSuppression des logs des serveurs minecraft de + de 2 jours effectué.\e[0m"
+
+	if [ "$serv_allumer" != "" ]; then
+		echo -e "\e[93mLes serveurs$serv_allumer sont encore ouvert, les joueurs ont reçu un message leur annonçant la fermeture dans 15 mins.\e[0m"
+		for element in $serv_allumer
+		do
+			if [[ $element == bungee* ]]; then
+				backupb+=" $element"
+			else
+				backupm+=" $element"
+			fi
+		done
+		for element in $backupm
+		do
+			screen -S $element -p 0 -X stuff "tellraw @a [\"\",{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},{\"text\":\"Redémarrage des serveurs dans 15 minutes.\",\"bold\":true,\"color\":\"red\"}]^M"
+		done
+		echo -e "\e[93mFermeture dans 15 mins. Le redémarrage prendra environ 20 mins.\e[0m"
+		sleep 300
+		
+		for element in $backupm
+		do
+			screen -S $element -p 0 -X stuff "tellraw @a [\"\",{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},{\"text\":\"Redémarrage des serveurs dans 10 minutes.\",\"bold\":true,\"color\":\"red\"}]^M"
+		done
+		echo -e "\e[93mFermeture dans 10 mins. Le redémarrage prendra environ 20 mins.\e[0m"
+		sleep 300
+		
+		for element in $backupm
+		do
+			screen -S $element -p 0 -X stuff "tellraw @a [\"\",{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},{\"text\":\"Redémarrage des serveurs dans 5 minutes.\",\"bold\":true,\"color\":\"red\"}]^M"
+		done
+		echo -e "\e[93mFermeture dans 5 mins. Le redémarrage prendra environ 20 mins.\e[0m"
+		sleep 180
+		for element in $backupm
+		do
+			screen -S $element -p 0 -X stuff "tellraw @a [\"\",{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},{\"text\":\"Redémarrage des serveurs dans 2 minutes.\",\"bold\":true,\"color\":\"red\"}]^M"
+		done
+		echo -e "\e[93mFermeture dans 2 mins. Le redémarrage prendra environ 20 mins.\e[0m"
+		sleep 60
+		for element in $backupm
+		do
+			screen -S $element -p 0 -X stuff "tellraw @a [\"\",{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},{\"text\":\"Redémarrage des serveurs dans 1 minutes.\",\"bold\":true,\"color\":\"red\"}]^M"
+		done
+		echo -e "\e[93mFermeture dans 1 min. Le redémarrage prendra environ 20 mins.\e[0m"
+		sleep 55
+		for element in $backupm
+		do
+			screen -S $element -p 0 -X stuff "tellraw @a [\"\",{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},{\"text\":\"Redémarrage des serveurs dans 5 secondes.\",\"bold\":true,\"color\":\"red\"}]^M"
+		done
+		sleep 5
+		for element in $backupm
+		do
+			screen -S $element -X stuff 'kick @a §6§lRedémarrage des serveurs en cours\r'
+		done
+		echo -e "\e[93mTous les joueurs ont été kick.\e[0m"
+		sleep 5
+		$0 $STOP $serv_allumer
+		
+		serv_allumer2="open"
+		i=0
+		while [ "$serv_allumer2" != "" ] && [ "$i" -lt 12 ]
+		do
+			sleep 1
+			serv_allumer2=""
+			for element in $serv_allumer
+			do
+				if [ `mc isopen $element` -eq "1" ]; then
+					serv_allumer2+=" $element"
+				fi
+			done
+			let "i = i + 1"
+			if [ "$serv_allumer2" != "" ]; then
+				if ! (( $i % 10 )) ; then
+					$0 $STOP $serv_allumer2
+					echo -e "\e[91mTentative de fermeture de \e[36m$serv_allumer2\e[91m, attente $((i * 5)) secondes (max 60 secondes).\e[0m"
+				else
+					echo -e "\e[91mLes serveurs\e[36m$serv_allumer2\e[91m ne sont pas encore fermé, attente $((i * 5)) secondes (max 60 secondes).\e[0m"
+				fi
+			fi
+		done
+		for element in `ls $SERVEUR_DIR`
+		do
+			if [ `mc isopen $element` -eq "1" ]; then
+				screen -X -S $element kill
+				echo -e "\e[91m$element a été fermer de force.\e[0m"
+			fi
+		done
+	fi
+	$0 backupserv
+	$0 backupbdd
+	$0 spigotmaj
+	$0 bungeemaj
+	echo -e "\e[92mRéouverture de tous les serveurs...\e[0m"
+	$0 $START all
+	echo -e "\e[32mTous est parfait, les serveurs se lancent !\e[0m"
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - TS - - - - - - - - - - - - - - - - - - - - - - - - - -
+elif [ "$1" = "ts" ]; then
+	telnet 172.0.0.1 10011
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - REDIS - - - - - - - - - - - - - - - - - - - - - - - - - -
+elif [ "$1" = "redis" ]; then
+	redis-cli -a 1rWS1Fmj7s4snEDCQgw3Mcznf8ShfrLZpPkKtstu5coV9PpDI1
+#- - - - - - - - - - - - - - - - - - - - - - - - - - USAGE - - - - - - - - - - - - - - - - - - - - - - - - - -
+else
+	echo -e "\e[31m'${*:0}' Unknow\n$USAGE\e[0m"
+fi
