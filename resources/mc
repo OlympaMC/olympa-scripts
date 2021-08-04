@@ -91,7 +91,7 @@ if [ "$1" = "unban" ]; then
 fi
 
 if [ "$USER" != "$USER_EXE" ]; then
-	sudo -u $USER_EXE mc ${*:1}
+	sudo -u $USER_EXE script /dev/null && mc ${*:1}
 	exit $?
 fi
 
