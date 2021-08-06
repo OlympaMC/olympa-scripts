@@ -54,7 +54,7 @@ USER_EXE="minecraft"
 
 # Serveurs:
 # ALL="$(ls $SERVEUR_DIR)"
-ALL="bungee1 lobby1 zta1 creatif1 pvpkit1"
+ALL="bungee1 zta1 creatif1 pvpkit1 lobby1 auth lobby2 lobby3 lobby4 lobby5 buildeur"
 
 # Backup mysql
 BDD_USER="root"
