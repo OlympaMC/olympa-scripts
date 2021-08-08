@@ -54,7 +54,7 @@ USER_EXE="minecraft"
 
 # Serveurs:
 # ALL="$(ls $SERVEUR_DIR)"
-ALL="bungee1 zta1 creatif1 pvpkit1 lobby1 auth1 auth2 lobby2 lobby3 lobby4 lobby5 buildeur"
+ALL="bungee1 zta1 creatif1 pvpkit1 lobby1 lobby2 lobby3 auth1 auth2 buildeur"
 
 # Backup mysql
 BDD_USER="root"
@@ -263,9 +263,9 @@ elif [ "$1" = "backupbdd" ]; then
 	mysqldump -h $BDD_HOST -u $BDD_USER -p$BDD_PASSWORD -A -x | pv --progress --size $SIZE_BYTES > "$BACKUP_DIR/$DATE_DAY | databases.sql"
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - BACKUP - - - - - - - - - - - - - - - - - - - - - - - - - -
 elif [ "$1" = "$BACKUP" ]; then
-	find "$BACKUP_DIR/" -type f -mtime +0 -exec rm {} \;
+	find "$BACKUP_DIR/" -type f -mtime +6 -exec rm {} \;
 	# find "/home/.backup/" -type f -mtime +1 -exec rm {} \;
-	echo -e "\e[94mSuppression des backups de + de 2 jours effectué."
+	echo -e "\e[94mSuppression des backups de + de 7 jours effectué."
 	for element in `ls $SERVEUR_DIR`
 	do
 		find "$SERVEUR_DIR/$element/logs/" -type f -mtime +1 -exec rm {} \;
