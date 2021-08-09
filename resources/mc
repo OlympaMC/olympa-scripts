@@ -558,7 +558,7 @@ elif [ "$1" = "deploy" ]; then
 		echo -e "\e[91mLe premier argument doit être dans la liste suivante\n${repos//olympa}\nou ALL\e[0m"
 	fi
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - auto deploy - - - - - - - - - - - - - - - - - - - - - - - - - -
-elif [ "$1" = "deployauto" ] || [ "$1" = "autodeploy" ]; then
+elif [ "$1" = "autodeploy" ] || [ "$1" = "autodeploywait" ]; then
 	PLUGIN="$2"
 	if [ -n "$3" ]; then
 		BRANCH="$3"
@@ -571,7 +571,11 @@ elif [ "$1" = "deployauto" ] || [ "$1" = "autodeploy" ]; then
 		if [ -n "$3" ] && [[ $3 == "refs/heads/"* ]]; then
 			BRANCH="${BRANCH#"refs/heads/"}"
 		fi
-		$0 deploy $PLUGIN $BRANCH $SERVS && $0 deployto $PLUGIN $BRANCH $SERVS
+		if [ "$1" = "autodeploywait" ]; then
+			$0 deploy $PLUGIN $BRANCH $SERVS && $0 deploywait $PLUGIN $BRANCH $SERVS
+		else
+			$0 deploy $PLUGIN $BRANCH $SERVS && $0 deployto $PLUGIN $BRANCH $SERVS
+		fi
 	else
 		echo -e "\e[91mLe 1er argument doit être dans :\n${repos//olympa}\nou ALL\nLe 2ème une branch :\ndev\master\nou autre branch qui existe\net les autres (faculatif) doivent être un un serveur dans :\n$(ls $SERVEUR_DIR)\n\e[0m"
 	fi
