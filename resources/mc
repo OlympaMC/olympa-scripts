@@ -576,7 +576,7 @@ elif [ "$1" = "deployauto" ] || [ "$1" = "autodeploy" ]; then
 		echo -e "\e[91mLe 1er argument doit être dans :\n${repos//olympa}\nou ALL\nLe 2ème une branch :\ndev\master\nou autre branch qui existe\net les autres (faculatif) doivent être un un serveur dans :\n$(ls $SERVEUR_DIR)\n\e[0m"
 	fi
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - deployTo - - - - - - - - - - - - - - - - - - - - - - - - - -
-elif [ "$1" = "deployto" ]; then
+elif [ "$1" = "deployto" ] || [ "$1" = "deploywait" ] || [ "$1" = "deploytowait" ] ; then
 	PLUGIN="$2"
 	if [ -n "$3" ]; then
 		BRANCH="$3"
@@ -617,89 +617,104 @@ elif [ "$1" = "deployto" ]; then
 				exit 1
 			fi
 		fi
-		for element in $SERVS
-		do
-			if [[ $element == bungee* ]]; then
-				COMMAND="alertraw"
-			else
-				COMMAND="tellraw @a"
-			fi
-			if [ `$0 isopen $element` -eq "1" ]; then
-				will_w8+=" $element"
-				screen -S $element -p 0 -X stuff "$COMMAND [{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},{\"text\":\"Le serveur $element va redémarrer dans $DEPLOYTO_SECOND_BEFORE_SHUTDOWN secondes afin de faire une mise à jour du Olympa$PLUGIN...\",\"color\":\"red\"}]^M"
-				echo -e "\e[32mLe serveur $element est ouvert, les joueurs ont été informés du redémarrage qui arrive dans $DEPLOYTO_SECOND_BEFORE_SHUTDOWN secondes.\e[0m"
-			else
-				echo -e "\e[91mLe serveur $element est fermé.\e[0m"
-			fi
-		done
-		if [ ! -z "$will_w8" ]; then
-			sleep $DEPLOYTO_SECOND_BEFORE_SHUTDOWN
-			$0 $STOP $will_w8
-		fi
-		for element in $SERVS
-		do
-			if [ `mc isopen $element` -eq "1" ]; then
-				serv_allumer+=" $element"
-			fi
-		done
-		serv_allumer2="open"
-		i=0
-		while [ "$serv_allumer2" != "" ] && [ "$i" -lt 12 ]
-		do
-			sleep 5
-			serv_allumer2=""
-			for element in $serv_allumer
+		if ["$1" = "deploywait"] || ["$1" = "deploytowait"]; then
+			echo -e "\e[32mLe plugin va être mit dans pluginsNew. Le plugin devrait être mit sur le serveur lors du prochain restart en utilisant la commande 'update'. Vérifie le start.sh\e[0m"	
+		else
+			for element in $SERVS
 			do
-				if [ `mc isopen $element` -eq "1" ]; then
-					serv_allumer2+=" $element"
+				if [[ $element == bungee* ]]; then
+					COMMAND="alertraw"
+				else
+					COMMAND="tellraw @a"
+				fi
+				if [ `$0 isopen $element` -eq "1" ]; then
+					will_w8+=" $element"
+					screen -S $element -p 0 -X stuff "$COMMAND [{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},{\"text\":\"Le serveur $element va redémarrer dans $DEPLOYTO_SECOND_BEFORE_SHUTDOWN secondes afin de faire une mise à jour du Olympa$PLUGIN...\",\"color\":\"red\"}]^M"
+					echo -e "\e[32mLe serveur $element est ouvert, les joueurs ont été informés du redémarrage qui arrive dans $DEPLOYTO_SECOND_BEFORE_SHUTDOWN secondes.\e[0m"
+				else
+					echo -e "\e[91mLe serveur $element est fermé.\e[0m"
 				fi
 			done
-			let "i = i + 1"
-			if [ "$serv_allumer2" != "" ]; then
-				if ! (( $i % 10 )) ; then
-					$0 $STOP $serv_allumer2
-					echo -e "\e[91mTentative de fermeture de \e[36m$serv_allumer2\e[91m, attente $((i * 5)) secondes (max 60 secondes).\e[0m"
-				else
-					echo -e "\e[91mLes serveurs\e[36m$serv_allumer2\e[91m ne sont pas encore fermé, attente $((i * 5)) secondes (max 60 secondes).\e[0m"
+			if [ ! -z "$will_w8" ]; then
+				sleep $DEPLOYTO_SECOND_BEFORE_SHUTDOWN
+				$0 $STOP $will_w8
+			fi
+			for element in $SERVS
+			do
+				if [ `mc isopen $element` -eq "1" ]; then
+					serv_allumer+=" $element"
 				fi
-			fi
-		done
-		for element in $SERVS
-		do
-			if [ `mc isopen $element` -eq "1" ]; then
-				#screen -X -S $element kill
-				kill -SIGKILL `screen -ls | awk '/\.$element\t/ {print strtonum($1)}'`
-				echo -e "\e[91m$element a été fermer de force.\e[0m"
-			fi
-		done
+			done
+			serv_allumer2="open"
+			i=0
+			while [ "$serv_allumer2" != "" ] && [ "$i" -lt 12 ]
+			do
+				sleep 5
+				serv_allumer2=""
+				for element in $serv_allumer
+				do
+					if [ `mc isopen $element` -eq "1" ]; then
+						serv_allumer2+=" $element"
+					fi
+				done
+				let "i = i + 1"
+				if [ "$serv_allumer2" != "" ]; then
+					if ! (( $i % 10 )) ; then
+						$0 $STOP $serv_allumer2
+						echo -e "\e[91mTentative de fermeture de \e[36m$serv_allumer2\e[91m, attente $((i * 5)) secondes (max 60 secondes).\e[0m"
+					else
+						echo -e "\e[91mLes serveurs\e[36m$serv_allumer2\e[91m ne sont pas encore fermé, attente $((i * 5)) secondes (max 60 secondes).\e[0m"
+					fi
+				fi
+			done
+			for element in $SERVS
+			do
+				if [ `mc isopen $element` -eq "1" ]; then
+					#screen -X -S $element kill
+					kill -SIGKILL `screen -ls | awk '/\.$element\t/ {print strtonum($1)}'`
+					echo -e "\e[91m$element a été fermer de force.\e[0m"
+				fi
+			done
+		fi
 		for element in $SERVS
 		do
 			if [ -f "$REPO_DIR/olympa-$PLUGIN/pom.xml" ]; then
 				cp $REPO_DIR/olympa-$PLUGIN/target/Olympa*.jar $SERVEUR_DIR/$element/plugins/
 			else
-				cp $REPO_DIR/olympa-$PLUGIN/build/Olympa*.jar $SERVEUR_DIR/$element/plugins/
+				if ["$1" = "deploywait"] || ["$1" = "deploytowait"]; then
+					if [ ! -d "$SERVEUR_DIR/$element/pluginsNew" ]; then
+						echo "Dossier $SERVEUR_DIR/$element/pluginsNew n'existe pas, création"
+						mkdir $SERVEUR_DIR/$element/pluginsNew
+						chmod 770 $SERVEUR_DIR/$element/pluginsNew
+					fi
+					cp $REPO_DIR/olympa-$PLUGIN/build/Olympa*.jar $SERVEUR_DIR/$element/pluginsNew/
+				else
+					cp $REPO_DIR/olympa-$PLUGIN/build/Olympa*.jar $SERVEUR_DIR/$element/plugins/
+				fi
 			fi
 			if [ "$?" -ne 0 ]; then
 				echo -e "\e[91mLa copy du $PLUGIN a échoué !\e[0m"; exit 1
-				for element2 in $serv_allumer
-				do
-					if [[ $element2 == bungee* ]]; then
-						COMMAND="alertraw"
-					else
-						COMMAND="tellraw @a"
-					fi
-					if [ `$0 isopen $element2` -eq "1" ]; then
-						screen -S $element2 -p 0 -X stuff "$COMMAND [{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},{\"text\":\"La mise à jour de Olympa$PLUGIN sur le serveur $selement a échoué. Le serveur ne va pas redémarrer.\",\"color\":\"red\"}]^M"
-						echo -e "\e[91mLe serveur $element2 est ouvert, les joueurs ont été informés de l'échec.\e[0m"
-					else
-						echo -e "\e[91mLe serveur $element2 est fermé, impossible de les informés de l'échec.\e[0m"
-					fi
-				done
+				if [ "$1" = "deployto" ]; then
+					for element2 in $serv_allumer
+					do
+						if [[ $element2 == bungee* ]]; then
+							COMMAND="alertraw"
+						else
+							COMMAND="tellraw @a"
+						fi
+						if [ `$0 isopen $element2` -eq "1" ]; then
+							screen -S $element2 -p 0 -X stuff "$COMMAND [{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},{\"text\":\"La mise à jour de Olympa$PLUGIN sur le serveur $selement a échoué. Le serveur ne va pas redémarrer.\",\"color\":\"red\"}]^M"
+							echo -e "\e[91mLe serveur $element2 est ouvert, les joueurs ont été informés de l'échec.\e[0m"
+						else
+							echo -e "\e[91mLe serveur $element2 est fermé, impossible de les informés de l'échec.\e[0m"
+						fi
+					done
+				fi
 			else
 				echo -e "\e[36molympa$PLUGIN\e[0;36m a été deploy sur \e[36m$element\e[0m"
 			fi
 		done
-		if [ "$serv_allumer" != "" ]; then
+		if [ "$serv_allumer" != "" ] && [ "$1" = "deployto" ]; then
 			$0 $START $serv_allumer
 		fi
 	else

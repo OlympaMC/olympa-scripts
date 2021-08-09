@@ -6,6 +6,7 @@ fi
 if [ ! -d "pluginsNew" ];then
 	echo "Dossier pluginsNew n'existe pas, création"
 	mkdir pluginsNew
+	chmod 770 pluginsNew
 	exit 1
 else
 	if [ -z "$(ls -A pluginsNew)" ]; then
@@ -16,6 +17,7 @@ else
 	if [ ! -d "pluginsOld" ];then
 		echo "Dossier pluginsOld n'existe pas, création"
 		mkdir pluginsOld
+		chmod 770 pluginsNew
 		exit
 	fi
 	for file in $files
@@ -25,6 +27,8 @@ else
 	done
 	for file in $files
 	do
+		chmod 770 plugins/$file
+		chown minecraft:minecraft plugins/$file
 		mv pluginsNew/$file plugins/
 		echo "Mv pluginsNew/$file to plugins/"
 	done
