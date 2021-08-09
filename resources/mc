@@ -617,7 +617,7 @@ elif [ "$1" = "deployto" ] || [ "$1" = "deploywait" ] || [ "$1" = "deploytowait"
 				exit 1
 			fi
 		fi
-		if ["$1" = "deploywait"] || ["$1" = "deploytowait"]; then
+		if [ "$1" = "deploywait" ] || [ "$1" = "deploytowait" ]; then
 			echo -e "\e[32mLe plugin va être mit dans pluginsNew. Le plugin devrait être mit sur le serveur lors du prochain restart en utilisant la commande 'update'. Vérifie le start.sh\e[0m"	
 		else
 			for element in $SERVS
@@ -681,7 +681,7 @@ elif [ "$1" = "deployto" ] || [ "$1" = "deploywait" ] || [ "$1" = "deploytowait"
 			if [ -f "$REPO_DIR/olympa-$PLUGIN/pom.xml" ]; then
 				cp $REPO_DIR/olympa-$PLUGIN/target/Olympa*.jar $SERVEUR_DIR/$element/plugins/
 			else
-				if ["$1" = "deploywait"] || ["$1" = "deploytowait"]; then
+				if [ "$1" = "deploywait" ] || [ "$1" = "deploytowait" ]; then
 					if [ ! -d "$SERVEUR_DIR/$element/pluginsNew" ]; then
 						echo "Dossier $SERVEUR_DIR/$element/pluginsNew n'existe pas, création"
 						mkdir $SERVEUR_DIR/$element/pluginsNew
