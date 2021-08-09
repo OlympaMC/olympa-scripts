@@ -27,8 +27,8 @@ else
 	done
 	for file in $files
 	do
-		chmod 770 plugins/$file
-		chown minecraft:minecraft plugins/$file
+		chmod 770 pluginsNew/$file
+		chown minecraft:minecraft pluginsNew/$file
 		mv pluginsNew/$file plugins/
 		echo "Mv pluginsNew/$file to plugins/"
 	done
