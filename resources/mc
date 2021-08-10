@@ -774,7 +774,7 @@ elif [ "$1" = "ts" ]; then
 	telnet 172.0.0.1 10011
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - UPDATE - - - - - - - - - - - - - - - - - - - - - - - - - -
 elif [ "$1" = "update" ]; then
-	cd $REPO_DIR/olympa-script && bash deploy.sh
+	cd $REPO_DIR/olympa-scripts && bash deploy.sh
 	#- - - - - - - - - - - - - - - - - - - - - - - - - - - REDIS - - - - - - - - - - - - - - - - - - - - - - - - - -
 elif [ "$1" = "redis" ]; then
 	redis-cli -a 1rWS1Fmj7s4snEDCQgw3Mcznf8ShfrLZpPkKtstu5coV9PpDI1
