@@ -18,7 +18,6 @@ else
 		echo "Dossier pluginsOld n'existe pas, création"
 		mkdir pluginsOld
 		chmod 770 pluginsNew
-		exit
 	fi
 	for file in $files
 	do
