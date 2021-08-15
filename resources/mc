@@ -217,13 +217,13 @@ elif [ "$1" = "spigotmaj" ]; then
 	build_id=`wget -qO- $PAPER_API_VERSION | jq -r '.build'`
 	if [ -z $old_build_id ] || [ "$build_id" -gt $old_build_id ]; then
 		echo -e "\e[92mMise à jour des Purpur...\e[0m"
-		rm $spigot_file
+		rm -f $spigot_file
 		wget -O $spigot_file $PAPER_API_DOWNLOAD
 		echo $build_id > paperspigot_build_id.txt
 		for element in `ls $SERVEUR_DIR`
 		do
 			if [[ $element != bungee* ]]; then
-				rm $SERVEUR_DIR/$element/$spigot_file
+				rm -f $SERVEUR_DIR/$element/$spigot_file
 				cp $spigot_file $SERVEUR_DIR/$element
 				echo -e "\e[92mPurpur a été maj sur $element\e[0m"
 			fi
@@ -238,13 +238,13 @@ elif [ "$1" = "bungeemaj" ]; then
 	build_id=`wget -qO- $WATERFALL_API_VERSION | jq -r '.build'`
 	if [ -z $old_build_id ] || [ "$build_id" -gt $old_build_id ]; then
 		echo -e "\e[92mMise à jour du WaterFall...\e[0m"
-		rm $bungee_file
+		rm -f $bungee_file
 		wget -O $bungee_file $WATERFALL_API_DOWNLOAD
 		echo $build_id > bungee_build_id.txt
 		for element in `ls $SERVEUR_DIR`
 		do
 			if [[ $element == bungee* ]]; then
-				rm $SERVEUR_DIR/$element/$bungee_file
+				rm -f $SERVEUR_DIR/$element/$bungee_file
 				cp $bungee_file $SERVEUR_DIR/$element
 				echo -e "\e[92mWaterFall a été maj sur $element\e[0m"
 			fi
@@ -263,12 +263,12 @@ elif [ "$1" = "backupbdd" ]; then
 	mysqldump -h $BDD_HOST -u $BDD_USER -p$BDD_PASSWORD -A -x | pv --progress --size $SIZE_BYTES > "$BACKUP_DIR/$DATE_DAY | databases.sql"
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - BACKUP - - - - - - - - - - - - - - - - - - - - - - - - - -
 elif [ "$1" = "$BACKUP" ]; then
-	find "$BACKUP_DIR/" -type f -mtime +6 -exec rm {} \;
-	# find "/home/.backup/" -type f -mtime +1 -exec rm {} \;
+	find "$BACKUP_DIR/" -type f -mtime +6 -exec rm -f {} \;
+	# find "/home/.backup/" -type f -mtime +1 -exec rm -f {} \;
 	echo -e "\e[94mSuppression des backups de + de 7 jours effectué."
 	for element in `ls $SERVEUR_DIR`
 	do
-		find "$SERVEUR_DIR/$element/logs/" -type f -mtime +1 -exec rm {} \;
+		find "$SERVEUR_DIR/$element/logs/" -type f -mtime +1 -exec rm -f {} \;
 		if [ `mc isopen $element` -eq "1" ]; then
 			serv_allumer+=" $element"
 		fi
