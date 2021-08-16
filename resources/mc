@@ -56,11 +56,6 @@ USER_EXE="minecraft"
 # ALL="$(ls $SERVEUR_DIR)"
 ALL="bungee1 zta1 creatif1 pvpkit1 lobby1 lobby2 auth1 buildeur"
 
-# Backup mysql
-BDD_USER="root"
-BDD_PASSWORD="deMmeROCIR1iSGdng0RY_P_aleCQ5n3g12fSSe8iUry4_BmZcy"
-BDD_HOST="localhost"
-
 BACKUP_DIR="/home/.backup"
 
 # FTP sauvegarde ################################
@@ -257,11 +252,6 @@ elif [ "$1" = "backupserv" ]; then
 	echo -e "\e[32mCréation de la backup des serveurs...\e[0m"
 	tar -c $SERVEUR_DIR | pv -s $(du -sb $SERVEUR_DIR | awk '{print $1}') > "$BACKUP_DIR/$DATE_DAY | serveurs.tar"
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - BACKUP - - - - - - - - - - - - - - - - - - - - - - - - - -
-elif [ "$1" = "backupbdd" ]; then
-	echo -e "\e[32mCréation de la backup bdd ...\e[0m"
-	SIZE_BYTES=$(mysql --skip-column-names -h $BDD_HOST -u $BDD_USER -p$BDD_PASSWORD <<< 'SELECT SUM(data_length) AS "size_bytes" FROM information_schema.TABLES;')
-	mysqldump -h $BDD_HOST -u $BDD_USER -p$BDD_PASSWORD -A -x | pv --progress --size $SIZE_BYTES > "$BACKUP_DIR/$DATE_DAY | databases.sql"
-#- - - - - - - - - - - - - - - - - - - - - - - - - - - BACKUP - - - - - - - - - - - - - - - - - - - - - - - - - -
 elif [ "$1" = "$BACKUP" ]; then
 	find "$BACKUP_DIR/" -type f -mtime +6 -exec rm -f {} \;
 	# find "/home/.backup/" -type f -mtime +1 -exec rm -f {} \;
@@ -362,7 +352,7 @@ elif [ "$1" = "$BACKUP" ]; then
 		done
 	fi
 	$0 backupserv
-	$0 backupbdd
+	#$0 backupbdd
 	$0 spigotmaj
 	$0 bungeemaj
 	echo -e "\e[92mRéouverture de tous les serveurs...\e[0m"
