@@ -269,7 +269,7 @@ elif [ "$1" = "$BACKUP" ]; then
 			serv_allumer+=" $element"
 		fi
 	done
-	echo -e "\e[94mSuppression des logs des serveurs minecraft de + de 2 jours effectué.\e[0m"
+	echo -e "\e[94mSuppression des logs des serveurs minecraft de + de 7 jours effectué.\e[0m"
 
 	if [ "$serv_allumer" != "" ]; then
 		echo -e "\e[93mLes serveurs$serv_allumer sont encore ouvert, les joueurs ont reçu un message leur annonçant la fermeture dans 15 mins.\e[0m"
@@ -285,33 +285,33 @@ elif [ "$1" = "$BACKUP" ]; then
 		do
 			screen -S $element -p 0 -X stuff "tellraw @a [\"\",{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},{\"text\":\"Redémarrage des serveurs dans 15 minutes.\",\"bold\":true,\"color\":\"red\"}]^M"
 		done
-		echo -e "\e[93mFermeture dans 15 mins. Le redémarrage prendra environ 20 mins.\e[0m"
+		echo -e "\e[93mFermeture dans 15 mins. Le redémarrage prendra environ 1 minute.\e[0m"
 		sleep 300
 		
 		for element in $backupm
 		do
 			screen -S $element -p 0 -X stuff "tellraw @a [\"\",{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},{\"text\":\"Redémarrage des serveurs dans 10 minutes.\",\"bold\":true,\"color\":\"red\"}]^M"
 		done
-		echo -e "\e[93mFermeture dans 10 mins. Le redémarrage prendra environ 20 mins.\e[0m"
+		echo -e "\e[93mFermeture dans 10 mins.\e[0m"
 		sleep 300
 		
 		for element in $backupm
 		do
 			screen -S $element -p 0 -X stuff "tellraw @a [\"\",{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},{\"text\":\"Redémarrage des serveurs dans 5 minutes.\",\"bold\":true,\"color\":\"red\"}]^M"
 		done
-		echo -e "\e[93mFermeture dans 5 mins. Le redémarrage prendra environ 20 mins.\e[0m"
+		echo -e "\e[93mFermeture dans 5 mins.\e[0m"
 		sleep 180
 		for element in $backupm
 		do
 			screen -S $element -p 0 -X stuff "tellraw @a [\"\",{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},{\"text\":\"Redémarrage des serveurs dans 2 minutes.\",\"bold\":true,\"color\":\"red\"}]^M"
 		done
-		echo -e "\e[93mFermeture dans 2 mins. Le redémarrage prendra environ 20 mins.\e[0m"
+		echo -e "\e[93mFermeture dans 2 mins.\e[0m"
 		sleep 60
 		for element in $backupm
 		do
 			screen -S $element -p 0 -X stuff "tellraw @a [\"\",{\"text\":\"[\",\"color\":\"dark_red\"},{\"text\":\"INFO\",\"color\":\"gold\"},{\"text\":\"] \",\"color\":\"dark_red\"},{\"text\":\"Redémarrage des serveurs dans 1 minutes.\",\"bold\":true,\"color\":\"red\"}]^M"
 		done
-		echo -e "\e[93mFermeture dans 1 min. Le redémarrage prendra environ 20 mins.\e[0m"
+		echo -e "\e[93mFermeture dans 1 min.\e[0m"
 		sleep 55
 		for element in $backupm
 		do
