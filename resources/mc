@@ -88,6 +88,7 @@ elif [ "$1" = "update" ]; then
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - BACKUP - - - - - - - - - - - - - - - - - - - - - - - - - -
 elif [ "$1" = "backupbdd" ]; then
 	sudo admin backupbdd
+	exit $?
 fi
 
 if [ "$USER" != "$USER_EXE" ]; then
