@@ -760,11 +760,19 @@ elif [ "$1" = "deployserv" ]; then
 elif [ "$1" = "log" ]; then
 	cd $SERVEUR_DIR/$2/logs
 	if [ -n "$3" ]; then
-		gunzip $3.log.gz && cat $3.log | more && gzip $3.log
-	else
-		echo "choose logs" 
-		ls
+		if [ -f "$3.log.gz" ]; then
+			gunzip $3.log.gz && cat $3.log | more && gzip $3.log
+			exit $?
+		elif [ -f "$3.log" ]; then
+			cat $3.log | more && gzip $3.log
+			exit $?
+		elif [ -f "$3" ]; then
+			cat $3 | more && gzip $3.log
+			exit $?
+		fi
 	fi
+	echo "choose logs" 
+	ls
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - TS - - - - - - - - - - - - - - - - - - - - - - - - - -
 elif [ "$1" = "ts" ]; then
 	telnet 172.0.0.1 10011
