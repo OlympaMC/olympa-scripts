@@ -17,4 +17,4 @@ ln -s $(pwd)/resources/firewall /bin/
 ln -s $(pwd)/resources/mc /bin/
 ln -s $(pwd)/resources/deploy.sh /bin/deploy
 ln -s $(pwd)/resources/update.sh /bin/update
-ln -s $(pwd)/resources/backup.sh /bin/admin
+ln -s $(pwd)/resources/admin /bin/admin
