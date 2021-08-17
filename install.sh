@@ -17,9 +17,4 @@ apt install curl htop nano nmap jq unzip wget
 apt install portsentry fail2ban mariadb-server webhook screen
 #apt install default-jre default-jdk
 
-chmod 777 $(pwd)/resources -R
-ln -s $(pwd)/resources/firewall /bin/
-ln -s $(pwd)/resources/mc /bin/
-ln -s $(pwd)/resources/deploy.sh /bin/deploy
-ln -s $(pwd)/resources/update.sh /bin/update
 
