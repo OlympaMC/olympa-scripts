@@ -21,8 +21,6 @@ BACKUP="backup"
 RESTART="restart"
 SSH="ssh"
 
-
-
 # Format de la date 
 DATE="$(date +"%a %d %b %Y %H:%M")"
 DATE_DAY="$(date +"%j")"
@@ -31,7 +29,7 @@ DATE_DAY="$(date +"%j")"
 SERVEUR_DIR="/home/serveurs"
 
 # Commande en cas d'erreur ou d'arguments non d?nie
-USAGE="\e[0;36mUsage >\n$(basename "$0") $START|$STOP|$RESTART ALL|<server>\n$(basename "$0") $SEE <server> -t\n$(basename "$0") deploy|deployto|autodeploy dev|master ALL|<server>\n$(basename "$0") unban <ip>\e[0;36m\n$(basename "$0") $BACKUP\n$(basename "$0") backupbdd|backupserv\nTous les serveurs : $(ls $SERVEUR_DIR)\e[0m"
+USAGE="\e[0;36mUsage >\n$(basename "$0") $START|$STOP|$RESTART ALL|<server>\n$(basename "$0") $SEE <server> -t\n$(basename "$0") deploy|deployto|autodeploy|autodeploywait <gitRepo> dev|master ALL|<server>\n$(basename "$0") unban <ip>\e[0;36m\n$(basename "$0") $BACKUP\n$(basename "$0") backup|backupserv|backupbdd\nTous les serveurs : $(ls $SERVEUR_DIR)\e[0m"
 
 # Nom des script qui lance le serveur (qui lance le .jar). Par default start.sh
 STARTSH="start.sh"
@@ -83,6 +81,9 @@ if [ "$1" = "unban" ]; then
 		echo -e "\e[35mUsage\e[0;35m $0 unban <ip>\e[0m"
 	fi
 	exit $?
+	#- - - - - - - - - - - - - - - - - - - - - - - - - - - UPDATE - - - - - - - - - - - - - - - - - - - - - - - - - -
+elif [ "$1" = "update" ]; then
+	cd $REPO_DIR/olympa-scripts && bash deploy.sh
 fi
 
 if [ "$USER" != "$USER_EXE" ]; then
@@ -247,6 +248,9 @@ elif [ "$1" = "bungeemaj" ]; then
 	else
 		echo -e "\e[92mMAJ bungee pas nécessaire\e[0m"
 	fi
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - BACKUP - - - - - - - - - - - - - - - - - - - - - - - - - -
+elif [ "$1" = "backupbdd" ]; then
+	sudo admin backupbdd
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - BACKUP - - - - - - - - - - - - - - - - - - - - - - - - - -
 elif [ "$1" = "backupserv" ]; then
 	echo -e "\e[32mCréation de la backup des serveurs...\e[0m"
@@ -762,12 +766,6 @@ elif [ "$1" = "log" ]; then
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - TS - - - - - - - - - - - - - - - - - - - - - - - - - -
 elif [ "$1" = "ts" ]; then
 	telnet 172.0.0.1 10011
-	#- - - - - - - - - - - - - - - - - - - - - - - - - - - UPDATE - - - - - - - - - - - - - - - - - - - - - - - - - -
-elif [ "$1" = "update" ]; then
-	cd $REPO_DIR/olympa-scripts && bash deploy.sh
-	#- - - - - - - - - - - - - - - - - - - - - - - - - - - REDIS - - - - - - - - - - - - - - - - - - - - - - - - - -
-elif [ "$1" = "redis" ]; then
-	redis-cli -a 1rWS1Fmj7s4snEDCQgw3Mcznf8ShfrLZpPkKtstu5coV9PpDI1
 #- - - - - - - - - - - - - - - - - - - - - - - - - - USAGE - - - - - - - - - - - - - - - - - - - - - - - - - -
 else
 	echo -e "\e[31m'${*:0}' Unknow\n$USAGE\e[0m"

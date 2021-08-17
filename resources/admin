@@ -31,30 +31,13 @@ DATE_DAY="$(date +"%j")"
 SERVEUR_DIR="/home/serveurs"
 
 # Commande en cas d'erreur ou d'arguments non d?nie
-USAGE="\e[0;36mUsage >\n$(basename "$0") $START|$STOP|$RESTART ALL|<server>\n$(basename "$0") $SEE <server> -t\n$(basename "$0") deploy|deployto|autodeploy dev|master ALL|<server>\n$(basename "$0") unban <ip>\e[0;36m\n$(basename "$0") $BACKUP\n$(basename "$0") backupbdd|backupserv\nTous les serveurs : $(ls $SERVEUR_DIR)\e[0m"
+USAGE="\e[0;36mUsage >\n$(basename "$0") unban|backupbdd|redis\e[0m"
 
 # Nom des script qui lance le serveur (qui lance le .jar). Par default start.sh
 STARTSH="start.sh"
 
-REPO_DIR="/home/repo"
-
-VERSION="1.16.5"
-VERSION_WATERFALL="1.17"
-
-PAPER_API_VERSION="https://purpur.pl3x.net/api/v1/purpur/$VERSION/latest"
-PAPER_API_DOWNLOAD="$PAPER_API_VERSION/download"
-WATERFALL_API_VERSION="https://papermc.io/api/v1/waterfall/$VERSION_WATERFALL/latest"
-WATERFALL_API_DOWNLOAD="$WATERFALL_API_VERSION/download"
-
-spigot_file="paperclip.jar"
-bungee_file="Waterfall.jar"
-
 # Nom de l'utilisateur avec lequel les serveurs se lance. Par default root
 USER_EXE="minecraft"
-
-# Serveurs:
-# ALL="$(ls $SERVEUR_DIR)"
-ALL="bungee1 zta1 creatif1 pvpkit1 lobby1 lobby2 auth1 buildeur"
 
 # Backup mysql
 BDD_USER="backup"
@@ -74,8 +57,6 @@ FTP_USER=""
 FTP_PASSWORD=""
 # Dossier des backups sur le ftp
 FTP_DIR="/serveurs/"
-
-DEPLOYTO_SECOND_BEFORE_SHUTDOWN="10"
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - UNBAN IP - - - - - - - - - - - - - - - - - - - - - - - - - -
 if [ "$1" = "unban" ]; then
