@@ -537,8 +537,10 @@ elif [ "$1" = "deploy" ]; then
 		# //cd $REPO_DIR/*$PLUGIN/
 		# bash deploy.sh ${@:3}
 		deploy ${@:2}
-		#if [ "$?" -ne 0 ]; then
-		#	echo -e "\e[91mLe build de $PLUGIN a échoué !\e[0m"; exit 1
+		if [ "$?" -ne 0 ]; then
+			echo -e "\e[91mTentative de re-build le $PLUGIN...\e[0m"
+			deploy ${@:2}
+		fi
 		#else
 		#	echo -e "\e[32mLe jar du $PLUGIN a été crée.\e[0m"
 		#	echo -e "\e[32mIl faut maintenant copier le jar sur le serveur.\e[0m"
@@ -761,17 +763,17 @@ elif [ "$1" = "log" ]; then
 	cd $SERVEUR_DIR/$2/logs
 	if [ -n "$3" ]; then
 		if [ -f "$3.log.gz" ]; then
-			gunzip $3.log.gz && cat $3.log | more && gzip $3.log
+			gzip -d $3.log.gz > $3.log && cat $3.log | more && rm $3.log
 			exit $?
 		elif [ -f "$3.log" ]; then
 			cat $3.log | more && gzip $3.log
 			exit $?
 		elif [ -f "$3" ]; then
-			cat $3 | more && gzip $3.log
+			cat $3 | more
 			exit $?
 		fi
 	fi
-	echo "choose logs" 
+	echo "choose logs without extension" 
 	ls
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - TS - - - - - - - - - - - - - - - - - - - - - - - - - -
 elif [ "$1" = "ts" ]; then
