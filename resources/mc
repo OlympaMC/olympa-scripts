@@ -351,8 +351,8 @@ elif [ "$1" = "$BACKUP" ]; then
 		for element in `ls $SERVEUR_DIR`
 		do
 			if [ `mc isopen $element` -eq "1" ]; then
-				#screen -X -S $element kill
-				kill -SIGKILL `screen -ls | awk '/\.$element\t/ {print strtonum($1)}'`
+				screen -X -S $element kill
+				#kill -SIGKILL `screen -ls | awk '/\.$element\t/ {print strtonum($1)}'`
 				echo -e "\e[91m$element a été fermer de force.\e[0m"
 			fi
 		done
@@ -418,9 +418,12 @@ elif [ "$1" = "$RESTART" ]; then
 			for element in $serv_vafermer
 			do
 				if [ `mc isopen $element` -eq "1" ]; then
-					#screen -X -S $element kill
-					kill -SIGKILL `screen -ls | awk '/\.$element\t/ {print strtonum($1)}'`
+					screen -X -S $element kill
+					#kill -SIGKILL `screen -ls | awk '/\.$element\t/ {print strtonum($1)}'`
 					echo -e "\e[91m$element a été fermer de force.\e[0m"
+				fi
+				if [ `mc isopen $element` -eq "1" ]; then
+					echo -e "\e[91m$element n'a pas réussi a se fermer.\e[0m"
 				fi
 			done
 			$0 $START $serv_vafermer
@@ -675,6 +678,9 @@ elif [ "$1" = "deployto" ] || [ "$1" = "deploywait" ] || [ "$1" = "deploytowait"
 					#screen -X -S $element kill
 					kill -SIGKILL `screen -ls | awk '/\.$element\t/ {print strtonum($1)}'`
 					echo -e "\e[91m$element a été fermer de force.\e[0m"
+				fi
+				if [ `mc isopen $element` -eq "1" ]; then
+					echo -e "\e[91m$element n'a pas réussi a se fermer.\e[0m"
 				fi
 			done
 		fi
