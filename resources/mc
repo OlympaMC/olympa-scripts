@@ -403,6 +403,7 @@ elif [ "$1" = "$RESTART" ]; then
 						serv_allumer2+=" $element"
 					fi
 				done
+				let "i = i + 1"
 				if [ "$serv_allumer2" != "" ]; then
 					$0 $STOP $serv_allumer2
 					echo -e "\e[91mLes serveurs\e[36m$serv_allumer2\e[91m ne sont pas encore fermé, attente $((i * 5)) secondes (max 60 secondes)\e[0m"
