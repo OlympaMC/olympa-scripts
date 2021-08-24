@@ -21,14 +21,14 @@ else
 	fi
 	for file in $files
 	do
-		mv plugins/$file pluginsOld/
+		mv -f plugins/$file pluginsOld/
 		echo "Mv plugins/$file to pluginsOld/"
 	done
 	for file in $files
 	do
 		chmod 770 pluginsNew/$file
 		chown minecraft:minecraft pluginsNew/$file
-		mv pluginsNew/$file plugins/
+		mv -f pluginsNew/$file plugins/
 		echo "Mv pluginsNew/$file to plugins/"
 	done
 fi
