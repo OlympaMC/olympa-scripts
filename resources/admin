@@ -28,7 +28,7 @@ DATE="$(date +"%a %d %b %Y %H:%M")"
 DATE_DAY="$(date +"%j")"
 
 # Dossier des serveurs (dossier qui contient les dossiers qui contiennent les fichiers du serveur). Il est recommand?e cr?un dossier dans /home tel que /home/<nom de votre network> pour y mettre tous les autres serveurs.
-SERVEUR_DIR="/home/serveurs"
+SERVEUR_DIR="/home/data/serveurs"
 
 # Commande en cas d'erreur ou d'arguments non d?nie
 USAGE="\e[0;36mUsage >\n$(basename "$0") unban|backupbdd|redis\e[0m"
@@ -44,7 +44,7 @@ BDD_USER="backup"
 BDD_PASSWORD="K53SHychsL4_iRij3jY8TiTT87acdiVlyANCsXtya88vl8eJGw"
 BDD_HOST="localhost"
 
-BACKUP_DIR="/home/.backup"
+BACKUP_DIR="/home/data/.backup"
 
 # FTP sauvegarde ################################
 # IP (chiffr?u dns) du ftp

@@ -12,9 +12,19 @@
 ## Need to be run as root
 
 # Outils
-apt install curl htop nano nmap jq unzip wget
+apt install curl htop nano nmap jq zip wget software-properties-common
 # Logiciels
-apt install portsentry fail2ban mariadb-server webhook screen
+apt install portsentry fail2ban mariadb-server webhook screen gradle maven redis
 #apt install default-jre default-jdk
 
-
+# Java JDK 16 - OpenJ9
+apt install -y apt-transport-https gnupg
+wget https://adoptopenjdk.jfrog.io/adoptopenjdk/api/gpg/key/public
+gpg --no-default-keyring --keyring ./adoptopenjdk-keyring.gpg --import public
+gpg --no-default-keyring --keyring ./adoptopenjdk-keyring.gpg --export --output adoptopenjdk-archive-keyring.gpg 
+rm adoptopenjdk-keyring.gpg
+sudo mv adoptopenjdk-archive-keyring.gpg /usr/share/keyrings 
+echo "deb [signed-by=/usr/share/keyrings/adoptopenjdk-archive-keyring.gpg] https://adoptopenjdk.jfrog.io/adoptopenjdk/deb $(cat /etc/os-release | grep VERSION_CODENAME | cut -d = -f 2) main" | sudo tee /etc/apt/sources.list.d/adoptopenjdk.list
+apt update
+apt install adoptopenjdk-16-openj9
+apt install adoptopenjdk-11-openj9

@@ -26,7 +26,7 @@ DATE="$(date +"%a %d %b %Y %H:%M")"
 DATE_DAY="$(date +"%j")"
 
 # Dossier des serveurs (dossier qui contient les dossiers qui contiennent les fichiers du serveur). Il est recommand?e cr?un dossier dans /home tel que /home/<nom de votre network> pour y mettre tous les autres serveurs.
-SERVEUR_DIR="/home/serveurs"
+SERVEUR_DIR="/home/data/serveurs"
 
 # Commande en cas d'erreur ou d'arguments non d?nie
 USAGE="\e[0;36mUsage >\n$(basename "$0") $START|$STOP|$RESTART ALL|<server>\n$(basename "$0") $SEE <server> -t\n$(basename "$0") deploy|deployto|autodeploy|autodeploywait <gitRepo> dev|master ALL|<server>\n$(basename "$0") unban <ip>\e[0;36m\n$(basename "$0") $BACKUP\n$(basename "$0") backup|backupserv|backupbdd\nTous les serveurs : $(ls $SERVEUR_DIR)\e[0m"
@@ -34,7 +34,7 @@ USAGE="\e[0;36mUsage >\n$(basename "$0") $START|$STOP|$RESTART ALL|<server>\n$(b
 # Nom des script qui lance le serveur (qui lance le .jar). Par default start.sh
 STARTSH="start.sh"
 
-REPO_DIR="/home/repo"
+REPO_DIR="/home/data/repo"
 
 VERSION="1.16.5"
 VERSION_WATERFALL="1.17"
@@ -54,7 +54,7 @@ USER_EXE="minecraft"
 # ALL="$(ls $SERVEUR_DIR)"
 ALL="bungee1 zta1 creatif1 pvpkit1 warfare1 lobby1 lobby2 auth1 buildeur"
 
-BACKUP_DIR="/home/.backup"
+BACKUP_DIR="/home/data/.backup"
 
 # FTP sauvegarde ################################
 # IP (chiffr?u dns) du ftp
@@ -259,9 +259,9 @@ elif [ "$1" = "backupserv" ]; then
 	tar -c $SERVEUR_DIR | pv -s $(du -sb $SERVEUR_DIR | awk '{print $1}') > "$BACKUP_DIR/$DATE_DAY | serveurs.tar"
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - BACKUP - - - - - - - - - - - - - - - - - - - - - - - - - -
 elif [ "$1" = "$BACKUP" ]; then
-	find "$BACKUP_DIR/" -type f -mtime +6 -exec rm -f {} \;
+	find "$BACKUP_DIR/" -type f -mtime +2 -exec rm -f {} \;
 	# find "/home/.backup/" -type f -mtime +1 -exec rm -f {} \;
-	echo -e "\e[94mSuppression des backups de + de 7 jours effectué."
+	echo -e "\e[94mSuppression des backups de + de 2 jours effectué."
 	for element in `ls $SERVEUR_DIR`
 	do
 		find "$SERVEUR_DIR/$element/logs/" -type f -mtime +1 -exec rm -f {} \;
