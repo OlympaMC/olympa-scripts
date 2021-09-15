@@ -16,7 +16,7 @@
 # ./deploy.sh core dev
 
 # PARAMETRES
-SERVEUR_DIR="/home/repo"
+SERVEUR_DIR="/home/data/repo"
 
 cd $SERVEUR_DIR
 

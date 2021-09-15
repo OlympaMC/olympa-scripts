@@ -28,3 +28,6 @@ echo "deb [signed-by=/usr/share/keyrings/adoptopenjdk-archive-keyring.gpg] https
 apt update
 apt install adoptopenjdk-16-openj9
 apt install adoptopenjdk-11-openj9
+
+# Ensuite, il faut ouvrir mariadb aux connexions extérieur en modifiant la config `/etc/mysql/mariadb.conf.d/50-server.cnf` -> Il faut commanter `bind-adress`
+# Et ajouter le mdp redis à la config redis `/etc/redis/redis.conf` -> `requirepass <password>`
