@@ -12,7 +12,7 @@
 ## Need to be run as root
 
 # Outils
-apt install curl htop nano nmap jq zip wget software-properties-common
+apt install curl htop nano nmap jq zip wget software-properties-common pv
 # Logiciels
 apt install portsentry fail2ban mariadb-server webhook screen gradle maven redis
 #apt install default-jre default-jdk
