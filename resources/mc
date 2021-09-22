@@ -259,7 +259,8 @@ elif [ "$1" = "backupserv" ]; then
 	tar -c $SERVEUR_DIR | pv -s $(du -sb $SERVEUR_DIR | awk '{print $1}') > "$BACKUP_DIR/$DATE_DAY | serveurs.tar"
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - BACKUP - - - - - - - - - - - - - - - - - - - - - - - - - -
 elif [ "$1" = "$BACKUP" ]; then
-	find "$BACKUP_DIR/" -type f -mtime +0 -exec rm -f {} \;
+	rm -f "$BACKUP_DIR/*"
+	#find "$BACKUP_DIR/" -type f -mtime +0 -exec rm -f {} \;
 	# find "/home/.backup/" -type f -mtime +1 -exec rm -f {} \;
 	echo -e "\e[94mSuppression des backups de + de 2 jours effectué."
 	for element in `ls $SERVEUR_DIR`
